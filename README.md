@@ -2,15 +2,15 @@
 
 VO2Cue is an open-source, VO2-focused 4x4 interval coach for Apple Watch, swimming, and eyes-free training. Contributions are welcome!
 
-V1.0 is implemented and running in TestFlight for iOS 17+ and watchOS 10+. The latest release is version 1.0, build 2. Read the [changelog](CHANGELOG.md) and [VO2Cue Privacy Policy](https://greggroll.github.io/vo2cue/).
+V1.0 is implemented and running in TestFlight for iOS 17+ and watchOS 10+. The latest release is version 1.0, build 2. Read the [changelog](CHANGELOG.md) and [VO2Cue Privacy Policy](https://greggroll.github.io/VO2Cue/privacy).
 
-Explore the [app demo and quick-start guide](https://greggroll.github.io/vo2cue/demo/) or [download VO2Cue on the App Store](https://apps.apple.com/us/app/vo2cue/id6804899072).
+Explore the [app demo and quick-start guide](https://greggroll.github.io/VO2Cue/) or [download VO2Cue on the App Store](https://apps.apple.com/us/app/vo2cue/id6804899072).
 
 ## Open Source & Contributor Rewards
 
 VO2Cue is released under the [MIT License](LICENSE). You are free to use, modify, and redistribute the code under its terms.
 
-Help make VO2Cue better. Bug fixes, features, accessibility improvements, documentation, and tests are all welcome. You can also help by reporting bugs or suggesting ideas in [GitHub Issues](https://github.com/GreggRoll/vo2cue/issues).
+Help make VO2Cue better. Bug fixes, features, accessibility improvements, documentation, and tests are all welcome. You can also help by reporting bugs or suggesting ideas in [GitHub Issues](https://github.com/GreggRoll/VO2Cue/issues).
 
 **Get a free lifetime subscription to VO2Cue when your pull request is accepted and merged.** A successful merge request (MR)—called a pull request (PR) on GitHub—is one reviewed, accepted, and merged by the maintainer. After your PR is merged, ask in the PR thread to arrange your reward; do not post private account or payment details publicly.
 
@@ -30,7 +30,7 @@ The launch version is designed as a complete paid iOS app with an independent Ap
 - Support swimming as a primary use case while keeping the app useful for running, cycling, rowing, and gym cardio.
 - Save completed workouts to Apple Health when the user grants permission.
 - Show simple local history such as completed sessions, total minutes, and recent workouts.
-- Keep the app private: no account, no ads, no backend, and no third-party tracking.
+- Keep the app private: no account, no ads, and no third-party tracking. Only user-submitted feedback leaves the device through the feedback delivery service.
 
 ## Default Workout
 
@@ -88,47 +88,31 @@ The paid launch version should feel complete without requiring additional purcha
 
 Contributors whose pull requests are accepted and merged receive a **free lifetime subscription to VO2Cue**. See the [contributor reward details](CONTRIBUTING.md#free-lifetime-subscription).
 
-## Roadmap
+## Next release: consistency and progress
 
-### V1
+The next release adds a private, on-device training habit loop:
 
-- iOS setup and profile editor.
-- Independent Apple Watch workout runtime.
-- Haptics, tones, and optional voice cues.
-- Custom 4x4 profiles.
-- HealthKit workout saving.
-- Simple local workout history.
-- Accessibility-first UI.
+- An editable weekly active-minute goal, initially 60 minutes as a personal target.
+- A workout library with Norwegian 4×4 (35 minutes), Short Intervals (22 minutes), and Easy 20 (20 minutes), each previewable and editable after adding.
+- Actual training-time tracking that excludes pauses and skipped intervals, with phase breakdowns and skipped-phase counts on iPhone and Apple Watch.
+- A Progress tab with eight weeks of active-minute totals, workout details, and optional effort ratings and notes.
+- Optional weekday reminders at a chosen local time. Reminders default off and open Workouts without starting a session.
 
-### V1.1
+Sessions ended early contribute their actual minutes. Existing history stays readable and labels legacy durations as recorded time; those entries are excluded from goals and charts because skipped time cannot be reconstructed. Sessions count toward the week they started, using the user's calendar and local timezone. Deleting local history removes its notes and recalculates progress, without deleting Apple Health workouts.
 
-- Additional tone packs.
-- More cue customization.
-- More polished workout summary screens.
+Goals, notes, and reminder settings stay on the iPhone. Watch records continue to transfer directly through WatchConnectivity. There is no new account, backend, analytics, Health permission, or purchase tier. No follow-up feature roadmap is planned in this change.
 
-### V1.2
-
-- Optional voice packs.
-- Shareable workout summaries.
-- More preset workouts.
-
-### Later
-
-- Siri and Shortcuts support.
-- Lock Screen and widget surfaces.
-- iCloud sync for profiles and history.
-- Deeper heart-rate summaries.
-- Additional interval protocols such as 8x2, 3x6, 30/30, Tabata, and Zone 2 plus 4x4 templates.
+See [next-release validation](docs/next-release-validation.md) for automated coverage and the physical-device checks required before release.
 
 ## Privacy
 
-VO2Cue is private by default. The complete [Privacy Policy](https://greggroll.github.io/vo2cue/) explains the app's data handling and HealthKit use.
+VO2Cue is private by default. The complete [Privacy Policy](https://greggroll.github.io/VO2Cue/privacy) explains the app's data handling and HealthKit use.
 
 - No account required.
 - No ads.
 - No third-party analytics.
-- No backend required for V1.
-- Workout profiles and history stay in the app's local storage.
+- Core workouts work without a backend. Optional feedback uses FormSubmit to deliver the subject and message to the developer.
+- Workout profiles, history, goals, effort ratings, notes, and reminder settings stay in the app's local storage.
 - Health data is accessed only with permission and stays on the user's devices and in Apple Health.
 - iPhone and Apple Watch exchange profiles and completed workout records directly through Apple's WatchConnectivity framework.
 - Users can revoke Health access in Apple settings and delete local history from the app.
@@ -147,8 +131,8 @@ The current build includes:
 - Optional HealthKit workout saving with accurate authorization state, visible request progress and results, Settings recovery after denial, and graceful failure handling.
 - Private on-device JSON persistence for profiles and workout history.
 - Accessible SwiftUI controls, Dynamic Type, VoiceOver descriptions, high-contrast phase labels and icons, reduced-motion behavior, and non-color phase communication.
-- A privacy manifest declaring no tracking or collected data, plus no account, analytics SDK, ads, or backend.
-- Nine unit tests and two UI integration tests covering schedule boundaries, timer state, cue events, Watch profile payloads, profile creation, live workout controls, and history.
+- No tracking, account, analytics SDK, or ads. Optional feedback is declared as customer support data.
+- Deterministic unit and UI tests covering timing, cues, Watch payloads, purchases, onboarding, profiles, progress, workout notes, and reminders.
 
 ## Project Structure
 
@@ -175,7 +159,7 @@ xcodebuild \
   -project VO2Cue.xcodeproj \
   -scheme VO2Cue \
   -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.5' \
-  test CODE_SIGNING_ALLOWED=NO
+  test CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=-
 
 xcodebuild \
   -project VO2Cue.xcodeproj \
@@ -186,3 +170,26 @@ xcodebuild \
 ```
 
 HealthKit cannot be fully exercised without granting permission on a simulator or signed Apple device. Denial is intentionally non-blocking: VO2Cue continues to time workouts and store local history.
+
+Purchase integration tests use a hosted app and local StoreKit configuration. Use the **VO2Cue Purchases** scheme for local checkout testing; see the [release setup and simulator notes](docs/monetization-release.md).
+
+## Feedback and rating requests
+
+Settings ends with an in-app feedback form (required subject, optional message). Delivery uses FormSubmit’s invisible-email identifier in `FeedbackService.formIdentifier`; never substitute the recipient email. Activate the form using the inbox verification email before setting this identifier and testing a submission. An empty identifier fails safely without claiming delivery.
+
+Four introduction pages explain the fitness benefits, eyes-free cues, Norwegian 4×4, custom workouts, Watch support, history, and optional Apple Health saving. New free downloads then reach a hard paywall with monthly membership or one-time lifetime access; existing paid-app buyers retain lifetime access. See the [monetization release setup](docs/monetization-release.md) before changing the download price to Free. Settings includes purchase restoration and a way to replay the introduction.
+
+StoreKit rating requests are attempted with a 25% chance after completed phone workouts, at most once every 120 days and three times in a rolling year. Apple decides whether to show the dialog and does not report review completion. Settings includes a direct App Store review link and an “already reviewed” toggle that disables future requests. Native prompts do not appear in TestFlight.
+
+
+## Lock-screen workouts
+
+Phone workouts with tones or voice enabled play a scheduled audio program in the background, including the timed gaps between cues. Audio mixes with other apps' music. Pause stops playback; resume and skip rebuild the remaining program using active workout time. A call, disconnected audio route, or audio-engine interruption pauses the workout for an explicit resume.
+
+A Live Activity displays the workout name, phase, round, next phase, and system-rendered countdown on the Lock Screen and Dynamic Island. It starts with a phone workout, freezes while paused, and ends with the workout. Live Activities must be allowed in iOS Settings. With both tones and voice disabled, iOS may suspend phase updates in the background; a stale activity asks the user to reopen VO2Cue.
+
+Add the **Weekly goal** widget from the Home Screen widget gallery in small or medium size. Both sizes show active minutes, goal completion, and a progress ring. Tap the progress area to open Progress. The medium widget also shows the most recently started phone workout (or the first saved workout before one has been started); **Start workout** opens VO2Cue and starts that profile after onboarding and purchase access are verified. It keeps an existing workout running. Goal edits, saved phone/Watch sessions, history deletion, and profile changes refresh the widget, and the week resets using the local calendar.
+
+The iPhone app and widget extension share `group.com.gregadams.vo2cue`. Enable this App Group for both bundle IDs in the Apple Developer account and include it in their provisioning profiles before a device or TestFlight build. The existing manual widget distribution profile must be regenerated with this entitlement.
+
+Before release, test on a physical iPhone without a debugger: lock during a long warmup, listen through halfway/countdown/phase changes and completion, repeat with voice only and tones only, and check pause/resume/skip, music mixing, headphones disconnecting, and a phone call. Simulator checks cannot establish real-device locked-screen audio reliability.

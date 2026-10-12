@@ -177,7 +177,7 @@ def compose_phones() -> None:
             "VO2CUE • EYES-FREE 4×4 COACH",
             "Train hard.\nNot the clock.",
             "Large, unmistakable intervals with haptics, tones and optional voice cues.",
-            "runtime-sprint.png",
+            "runtime-sprint-neutral.png",
         ),
         (
             "02-your-workout-your-way.png",
@@ -218,7 +218,7 @@ def compose_phones() -> None:
         headline_size=96,
         subhead_size=43,
     )
-    phone = load_phone("runtime-sprint.png")
+    phone = load_phone("runtime-sprint-neutral.png")
     phone_w = 690
     phone_h = round(phone_w * phone.height / phone.width)
     rounded_paste(canvas, phone, (36, 880, phone_w, phone_h), radius=68, border=15, shadow=35)
@@ -236,7 +236,7 @@ def compose_phones() -> None:
         canvas,
         "PRIVATE BY DEFAULT",
         "Progress that\nstays yours.",
-        "Local history, optional Apple Health saving, and no account, ads or tracking.",
+        "Weekly goals, actual active minutes, and eight weeks of training. No account, ads or tracking.",
         x=84,
         y=112,
         max_width=1060,
@@ -246,8 +246,54 @@ def compose_phones() -> None:
     x = 84
     for label, color in [("NO ACCOUNT", BLUE), ("NO ADS", ORANGE), ("NO TRACKING", RED)]:
         x += add_pill(canvas, label, x, 665, color) + 18
-    add_phone_screen(canvas, load_phone("history.png"), width=870, y=800)
+    add_phone_screen(canvas, load_phone("progress.png"), width=870, y=800)
     canvas.convert("RGB").save(PHONE_OUT / "05-private-progress.png", quality=96)
+
+    canvas = phone_canvas((31, 15, 0), -50)
+    add_headline(
+        canvas,
+        "HOME SCREEN WIDGETS",
+        "Your goal.\nOne tap closer.",
+        "See your weekly progress. Start your next workout right from the medium widget.",
+        x=84, y=112, max_width=1070, headline_size=108, subhead_size=45,
+    )
+    small = load_widget("small")
+    medium = load_widget("medium")
+    rounded_paste(canvas, small, (84, 780, 485, 485), radius=105, shadow=35)
+    draw = ImageDraw.Draw(canvas)
+    draw.text((620, 850), "SMALL", font=font(31, rounded=True), fill=ORANGE)
+    draw.text((620, 914), "Your weekly", font=font(45, rounded=True), fill=WHITE)
+    draw.text((620, 974), "effort, at a", font=font(45, rounded=True), fill=WHITE)
+    draw.text((620, 1034), "glance.", font=font(45, rounded=True), fill=WHITE)
+    draw.text((84, 1390), "MEDIUM • READY TO MOVE", font=font(31, rounded=True), fill=ORANGE)
+    rounded_paste(canvas, medium, (84, 1480, 1074, 505), radius=112, shadow=35)
+    rounded_paste(canvas, load_widget("complete"), (84, 2130, 290, 290), radius=65, shadow=25)
+    draw.text((420, 2190), "Celebrate a goal met.", font=font(43, rounded=True), fill=WHITE)
+    draw.text((420, 2270), "Start fresh each week.", font=font(40), fill=MUTED)
+    canvas.convert("RGB").save(PHONE_OUT / "06-weekly-goal-widgets.png", quality=96)
+
+
+def load_widget(size: str) -> Image.Image:
+    # Crop the real widget from its native 1206 × 2622 Home Screen capture.
+    # Keep all UI pixels and text; the compositor masks the rounded corners.
+    source = load_phone(f"widget-{size}-home.png")
+    if source.size != (1206, 2622):
+        raise ValueError(f"Unexpected widget capture dimensions: {source.size}")
+    box = (79, 872, 1128, 1365) if size == "medium" else (635, 872, 1128, 1365)
+    return source.crop(box)
+
+
+def export_web_assets() -> None:
+    assets = ROOT.parents[1] / "docs" / "demo" / "assets"
+    for name in ("workouts", "progress"):
+        screen = load_phone(f"{name}.png")
+        screen.resize((600, round(600 * screen.height / screen.width)), Image.Resampling.LANCZOS).convert("RGB").save(assets / f"{name}.jpg", quality=88, optimize=True)
+    for size in ("small", "medium", "complete"):
+        widget = load_widget(size)
+        mask = Image.new("L", widget.size)
+        ImageDraw.Draw(mask).rounded_rectangle((0, 0, widget.width, widget.height), radius=110, fill=255)
+        widget.putalpha(mask)
+        widget.save(assets / f"widget-{size}.png", optimize=True)
 
 
 def ipad_canvas(tint: tuple[int, int, int], crop_bias: int = 0) -> Image.Image:
@@ -350,6 +396,7 @@ def main() -> None:
     compose_phones()
     compose_ipads()
     compose_watch()
+    export_web_assets()
     validate(PHONE_OUT.glob("*.png"), (1242, 2688))
     validate(IPAD_OUT.glob("*.png"), (2064, 2752))
     validate(WATCH_OUT.glob("*.png"), (422, 514))
