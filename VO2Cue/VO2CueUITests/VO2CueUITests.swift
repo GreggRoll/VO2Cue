@@ -117,11 +117,10 @@ final class VO2CueUITests: XCTestCase {
         if notNow.waitForExistence(timeout: 2) { notNow.tap() }
         XCTAssertTrue(app.staticTexts["currentHeartRate"].waitForExistence(timeout: 5))
         app.swipeUp()
-        scrollTo(app.staticTexts["heartRateStatus"])
         XCTAssertEqual(app.staticTexts["heartRateStatus"].label, "In target")
+        captureScreen("Heart Sync Largest Text")
         XCTAssertTrue(app.staticTexts["heartRateStatus"].isHittable)
         XCTAssertTrue(app.buttons["Pause"].isHittable)
-        captureScreen("Heart Sync Largest Text")
     }
 
     func testFeedbackRequiresSubjectButMessageIsOptional() {
