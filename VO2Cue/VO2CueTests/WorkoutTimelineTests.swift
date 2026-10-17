@@ -161,3 +161,55 @@ final class WorkoutTimelineTests: XCTestCase {
         runtime.end(at: start.addingTimeInterval(1))
     }
 }
+
+final class WorkoutCueScheduleTests: XCTestCase {
+    func testScheduleIncludesTransitionsAndCompletionAtExactActiveTimes() {
+        var profile = WorkoutProfile.norwegian4x4
+        profile.warmupSeconds = 10
+        profile.workSeconds = 6
+        profile.repeatCount = 1
+        let timeline = WorkoutTimeline(profile: profile)
+        let cues = WorkoutCueSchedule(profile: profile, timeline: timeline).cues
+        XCTAssertEqual(cues.first?.time, 0)
+        XCTAssertEqual(cues.first?.phrase, "Warm up")
+        XCTAssertEqual(cues.first { $0.time == 10 }?.phrase, profile.hardCueLabel)
+        XCTAssertEqual(cues.last?.time, 16)
+        XCTAssertEqual(cues.last?.phrase, "Workout complete")
+        XCTAssertEqual(cues.filter { $0.phrase == "1" }.map(\.time), [9, 15])
+        XCTAssertEqual(Set(cues.map(\.time)).count, cues.count)
+    }
+
+    func testShortPhaseCountdownDoesNotPrecedeItsPhase() {
+        var profile = WorkoutProfile.norwegian4x4
+        profile.warmupSeconds = 0
+        profile.workSeconds = 5
+        profile.repeatCount = 1
+        profile.countdownSeconds = 10
+        let cues = WorkoutCueSchedule(profile: profile, timeline: WorkoutTimeline(profile: profile)).cues
+        XCTAssertEqual(cues.first?.phrase, profile.hardCueLabel)
+        XCTAssertFalse(cues.contains { $0.time < 0 })
+        XCTAssertEqual(cues.filter { Int($0.phrase) != nil }.map(\.phrase), ["4", "3", "2", "1"])
+    }
+
+    @MainActor
+    func testPauseDoesNotEmitCuesAndPublishesFrozenState() {
+        var events: [WorkoutRuntimeEvent] = []
+        var states: [WorkoutRuntimeStatus] = []
+        let runtime = WorkoutRuntime(profile: .norwegian4x4) { events.append($0) }
+        runtime.changeHandler = { states.append($0.status) }
+        let start = Date()
+        runtime.start(at: start)
+        let originalCount = events.count
+        runtime.pause(at: start.addingTimeInterval(598))
+        runtime.update(at: start.addingTimeInterval(900))
+        XCTAssertEqual(events.count, originalCount)
+        XCTAssertEqual(runtime.snapshot.remainingSeconds, 2)
+        XCTAssertEqual(states.last, .paused)
+        runtime.resume(at: start.addingTimeInterval(900))
+        runtime.update(at: start.addingTimeInterval(902))
+        XCTAssertEqual(runtime.snapshot.phase.kind, .work)
+        XCTAssertEqual(states.last, .running)
+        runtime.end(at: start.addingTimeInterval(902))
+        XCTAssertEqual(states.last, .ended)
+    }
+}

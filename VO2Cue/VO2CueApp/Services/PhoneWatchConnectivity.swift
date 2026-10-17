@@ -33,7 +33,7 @@ final class PhoneWatchConnectivity: NSObject, WCSessionDelegate {
     private var recordHandler: ((WorkoutRecord) -> Void)?
     private var statusHandler: ((WatchProfileSyncStatus) -> Void)?
     private var pendingRecords: [WorkoutRecord] = []
-    private var latestProfilesPayload: [String: Any]?
+    private var latestProfilesPayload: [String: Any] = [:]
     private var syncStatus: WatchProfileSyncStatus = .activating {
         didSet { statusHandler?(syncStatus) }
     }
@@ -63,7 +63,7 @@ final class PhoneWatchConnectivity: NSObject, WCSessionDelegate {
 
     func sync(profiles: [WorkoutProfile]) {
         do {
-            latestProfilesPayload = try WatchConnectivityPayload.encodeProfiles(profiles)
+            latestProfilesPayload.merge(try WatchConnectivityPayload.encodeProfiles(profiles)) { _, new in new }
             flushLatestProfiles()
         } catch {
             syncStatus = .failed(error.localizedDescription)
@@ -71,8 +71,18 @@ final class PhoneWatchConnectivity: NSObject, WCSessionDelegate {
         }
     }
 
+    func sync(access: WatchPurchaseAccess) {
+        do {
+            latestProfilesPayload.merge(try WatchConnectivityPayload.encodeAccess(access)) { _, new in new }
+            flushLatestProfiles()
+        } catch {
+            logger.error("Could not encode purchase access: \(error.localizedDescription, privacy: .public)")
+        }
+    }
+
     private func flushLatestProfiles() {
-        guard WCSession.isSupported(), let payload = latestProfilesPayload else { return }
+        guard WCSession.isSupported(), !latestProfilesPayload.isEmpty else { return }
+        let payload = latestProfilesPayload
         let session = WCSession.default
 
         guard session.activationState == .activated else {

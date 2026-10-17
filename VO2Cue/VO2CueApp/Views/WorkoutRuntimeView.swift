@@ -26,6 +26,12 @@ struct WorkoutRuntimeView: View {
                 Text("The elapsed portion will remain in your local history.")
             }
         }
+        .alert("Workout audio", isPresented: Binding(
+            get: { model.workoutErrorMessage != nil },
+            set: { if !$0 { model.workoutErrorMessage = nil } }
+        )) {
+            Button("OK") { model.workoutErrorMessage = nil }
+        } message: { Text(model.workoutErrorMessage ?? "") }
         .interactiveDismissDisabled(runtime.status == .running || runtime.status == .paused)
         .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
         .onDisappear { UIApplication.shared.isIdleTimerDisabled = false }
@@ -126,6 +132,7 @@ private struct NextPhaseView: View {
 }
 
 private struct WorkoutControls: View {
+    @Environment(AppModel.self) private var model
     @Bindable var runtime: WorkoutRuntime
     @Binding var confirmEnd: Bool
 
@@ -143,7 +150,7 @@ private struct WorkoutControls: View {
             }
             .buttonStyle(.borderedProminent)
 
-            Button("Skip", systemImage: "forward.end.fill") { runtime.skip() }
+            Button("Skip", systemImage: "forward.end.fill") { model.skipPhase() }
                 .buttonStyle(.bordered)
         }
         .controlSize(.large)
@@ -155,26 +162,37 @@ private struct WorkoutCompletionView: View {
     let done: () -> Void
 
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
-            Image(systemName: runtime.status == .completed ? "checkmark.circle.fill" : "stop.circle.fill")
-                .font(.system(size: 72))
-                .foregroundStyle(runtime.status == .completed ? .green : .orange)
-                .accessibilityHidden(true)
-            Text(runtime.status == .completed ? "Workout complete" : "Workout ended")
-                .font(.largeTitle.bold())
-            Text(runtime.elapsedSeconds.timerText)
-                .font(.system(.title, design: .rounded, weight: .semibold))
-                .monospacedDigit()
-            Text(runtime.profile.name)
-                .foregroundStyle(.secondary)
-            Spacer()
-            Button("Done", action: done)
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .frame(maxWidth: .infinity)
+        ScrollView {
+            VStack(spacing: 24) {
+                Image(systemName: runtime.status == .completed ? "checkmark.circle.fill" : "stop.circle.fill")
+                    .font(.system(size: 72))
+                    .foregroundStyle(runtime.status == .completed ? .green : .orange)
+                    .accessibilityHidden(true)
+                Text(runtime.status == .completed ? "Workout complete" : "Workout ended")
+                    .font(.largeTitle.bold())
+                Text(runtime.actualActiveSeconds.timerText)
+                    .font(.system(.title, design: .rounded, weight: .semibold))
+                    .monospacedDigit()
+                    .accessibilityIdentifier("completedActualDuration")
+                Text(runtime.profile.name).foregroundStyle(.secondary)
+                if let record = runtime.finishedRecord() {
+                    WorkoutSummaryDetails(record: record)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    WorkoutReflectionView(recordID: record.id)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            .padding()
+            .accessibilityElement(children: .contain)
         }
-        .padding()
-        .accessibilityElement(children: .contain)
+        .safeAreaInset(edge: .bottom) {
+            Button(action: done) {
+                Text("Done").frame(maxWidth: .infinity).padding(.vertical, 4)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .padding()
+            .background(.bar)
+        }
     }
 }

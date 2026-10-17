@@ -79,8 +79,20 @@ struct WatchRuntimeView: View {
                     .accessibilityHidden(true)
                 Text(runtime.status == .completed ? "Complete" : "Ended")
                     .font(.headline)
-                Text(runtime.elapsedSeconds.timerText)
+                Text(runtime.actualActiveSeconds.timerText)
                     .font(.title2.bold().monospacedDigit())
+                Text("Active time").font(.caption2)
+                ForEach([WorkoutPhaseKind.warmup, .work, .recovery, .cooldown], id: \.self) { kind in
+                    let phases = runtime.phaseResults.filter { $0.kind == kind }
+                    if !phases.isEmpty {
+                        LabeledContent(kind.watchSummaryTitle,
+                                       value: Int(phases.reduce(0) { $0 + $1.activeSeconds }.rounded(.down)).timerText)
+                            .font(.caption).monospacedDigit()
+                            .accessibilityElement(children: .combine)
+                    }
+                }
+                Text("Skipped phases: \(runtime.skippedPhaseIDs.count)").font(.caption2)
+                Text("Pauses and skipped time excluded.").font(.caption2).foregroundStyle(.secondary)
                 if let error = model.healthSession.lastErrorMessage {
                     Text("Saved locally. Health unavailable: \(error)")
                         .font(.caption2)
@@ -98,6 +110,17 @@ struct WatchRuntimeView: View {
         case .work: .red
         case .recovery: .blue
         case .cooldown: .mint
+        }
+    }
+}
+
+private extension WorkoutPhaseKind {
+    var watchSummaryTitle: String {
+        switch self {
+        case .warmup: "Warmup"
+        case .work: "Work / steady"
+        case .recovery: "Recovery"
+        case .cooldown: "Cooldown"
         }
     }
 }

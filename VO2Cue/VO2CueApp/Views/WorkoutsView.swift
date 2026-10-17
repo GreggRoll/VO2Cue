@@ -15,15 +15,22 @@ private enum ProfileSheet: Identifiable {
 struct WorkoutsView: View {
     @Environment(AppModel.self) private var model
     @State private var presentedSheet: ProfileSheet?
+    @State private var showingLibrary = false
 
     var body: some View {
-        NavigationStack {
+        @Bindable var model = model
+        NavigationStack(path: $model.workoutsNavigationPath) {
             List {
+                Section { WeeklyGoalView() }
+                Section {
+                    Button("Browse workout library", systemImage: "books.vertical") { showingLibrary = true }
+                }
                 Section {
                     ForEach(model.profiles) { profile in
                         NavigationLink(value: profile.id) {
                             ProfileRow(profile: profile)
                         }
+                        .accessibilityIdentifier("workoutProfile_\(profile.id.uuidString)")
                         .swipeActions(edge: .leading) {
                             Button("Duplicate", systemImage: "plus.square.on.square") {
                                 model.duplicate(profile)
@@ -71,6 +78,7 @@ struct WorkoutsView: View {
                         .environment(model)
                 }
             }
+            .sheet(isPresented: $showingLibrary) { WorkoutLibraryView() }
         }
     }
 }
@@ -111,13 +119,20 @@ private struct ProfileDetailView: View {
                 Button {
                     model.start(profile)
                 } label: {
-                    Label("Start workout", systemImage: "play.fill")
+                    Label(model.isPreparingWorkout ? "Preparing audio…" : "Start workout", systemImage: "play.fill")
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 8)
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
-                .accessibilityHint("Starts the workout timer immediately")
+                .disabled(model.isPreparingWorkout)
+                .accessibilityHint("Prepares cues and starts the workout timer")
+                .alert("Workout audio", isPresented: Binding(
+                    get: { model.workoutErrorMessage != nil && model.activeRuntime == nil },
+                    set: { if !$0 { model.workoutErrorMessage = nil } }
+                )) {
+                    Button("OK") { model.workoutErrorMessage = nil }
+                } message: { Text(model.workoutErrorMessage ?? "") }
             }
             .padding()
         }

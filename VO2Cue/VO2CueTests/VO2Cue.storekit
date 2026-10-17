@@ -1,0 +1,60 @@
+{
+  "identifier" : "F3E2526A",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    {
+      "displayPrice" : "19.99",
+      "familyShareable" : false,
+      "internalID" : "9C2F19A1",
+      "localizations" : [
+        {
+          "description" : "Full access to VO2Cue with one payment and no renewal.",
+          "displayName" : "VO2Cue Lifetime Access",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.gregadams.vo2cue.lifetime",
+      "referenceName" : "Lifetime Access",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6804899072",
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : []
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "A1254810",
+      "localizations" : [],
+      "name" : "VO2Cue Membership",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "1.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "9C2F19A2",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Full VO2Cue access, billed monthly. Cancel anytime.",
+              "displayName" : "VO2Cue Monthly Membership",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.gregadams.vo2cue.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Monthly Membership",
+          "subscriptionGroupID" : "A1254810",
+          "type" : "RecurringSubscription",
+          "winBackOffers" : []
+        }
+      ]
+    }
+  ],
+  "version" : { "major" : 3, "minor" : 0 }
+}

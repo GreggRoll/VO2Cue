@@ -11,9 +11,11 @@
 	<key>provisioningProfiles</key>
 	<dict>
 		<key>com.gregadams.vo2cue</key>
-		<string>VO2Cue App Store 20260825014428</string>
+		<string>VO2Cue App Store Shared 20261012</string>
 		<key>com.gregadams.vo2cue.watchkitapp</key>
 		<string>VO2Cue Watch App Store 20260825014428</string>
+		<key>com.gregadams.vo2cue.widgets</key>
+		<string>VO2Cue Widgets App Store 20261012</string>
 	</dict>
 	<key>signingCertificate</key>
 	<string>Apple Distribution</string>

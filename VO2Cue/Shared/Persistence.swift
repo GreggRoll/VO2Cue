@@ -16,11 +16,12 @@ enum Persistence {
     static func save<Value: Encodable>(
         _ value: Value,
         fileName: String,
+        protection: Data.WritingOptions = .completeFileProtection,
         fileManager: FileManager = .default
     ) throws {
         let url = try fileURL(fileName: fileName, fileManager: fileManager)
         let data = try JSONEncoder.vo2Cue.encode(value)
-        try data.write(to: url, options: [.atomic, .completeFileProtection])
+        try data.write(to: url, options: [.atomic, protection])
     }
 
     private static func fileURL(fileName: String, fileManager: FileManager) throws -> URL {

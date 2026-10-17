@@ -5,6 +5,8 @@ import WatchConnectivity
 @MainActor
 final class WatchConnectivityStore: NSObject, WCSessionDelegate {
     private var profilesHandler: (([WorkoutProfile]) -> Void)?
+    private var accessHandler: ((WatchPurchaseAccess) -> Void)?
+    private var pendingAccess: WatchPurchaseAccess?
     private var pendingProfiles: [WorkoutProfile]?
     private let logger = Logger(subsystem: "com.gregadams.vo2cue.watchkitapp", category: "WatchConnectivity")
 
@@ -36,6 +38,16 @@ final class WatchConnectivityStore: NSObject, WCSessionDelegate {
         }
     }
 
+    func setAccessHandler(_ handler: @escaping (WatchPurchaseAccess) -> Void) {
+        accessHandler = handler
+        if let pendingAccess {
+            handler(pendingAccess)
+            self.pendingAccess = nil
+        } else if WCSession.isSupported() {
+            receive(payload: WCSession.default.receivedApplicationContext)
+        }
+    }
+
     private func deliver(_ profiles: [WorkoutProfile]) {
         guard !profiles.isEmpty else { return }
         pendingProfiles = nil
@@ -44,14 +56,18 @@ final class WatchConnectivityStore: NSObject, WCSessionDelegate {
 
     @discardableResult
     nonisolated private func receive(payload: [String: Any]) -> Bool {
-        guard let profiles = WatchConnectivityPayload.decodeProfiles(from: payload),
-              !profiles.isEmpty else { return false }
+        let profiles = WatchConnectivityPayload.decodeProfiles(from: payload)
+        let access = WatchConnectivityPayload.decodeAccess(from: payload)
+        guard profiles != nil || access != nil else { return false }
         Task { @MainActor [weak self] in
             guard let self else { return }
-            if self.profilesHandler == nil {
-                self.pendingProfiles = profiles
-            } else {
-                self.deliver(profiles)
+            if let profiles {
+                if self.profilesHandler == nil { self.pendingProfiles = profiles }
+                else { self.deliver(profiles) }
+            }
+            if let access {
+                if let handler = self.accessHandler { handler(access) }
+                else { self.pendingAccess = access }
             }
         }
         return true
