@@ -38,7 +38,7 @@ This preview does not add a time-in-zone score or post-workout HR chart. Its fir
 
 - iOS 17.5: 65 unit tests passed, including 16 heart-rate/protocol tests and the existing StoreKit tests.
 - iOS 26.3: work/recovery, missing and paused HR presentations passed; existing workout controls/history passed. Settings/profile target editing, widget-start preservation, and the largest accessibility text size passed in targeted reruns. Accessibility controls use labeled icons at the largest sizes so the scrollable heart-rate card remains reachable.
-- Signed Release archive: iPhone app, embedded Watch app and widget extension built successfully as 1.2 (6). Export/upload verification is recorded after App Store Connect processing.
+- Signed Release archive: iPhone app, embedded Watch app and widget extension built successfully as 1.2 (6). Export/upload succeeded on October 17, 2026. App Store Connect verified version 1.2 (6) as VALID and IN_BETA_TESTING, assigned to Heart Sync Testing with the existing internal tester. English What to Test notes were read back and matched Config/TestFlight-HeartSync.txt; exempt encryption was confirmed. No App Store release or external Beta App Review was submitted.
 - UI captures and test result bundles are saved locally under `output/heart-sync-validation` and `build`; simulator screenshots use explicitly simulated Debug fixtures and do not establish physical HR or radio behavior.
 
 Apple references: [multidevice workout walkthrough](https://developer.apple.com/videos/play/wwdc2023/10023/) and [mirrored-session reconnection](https://developer.apple.com/documentation/healthkit/hkworkoutsessiondelegate/workoutsession(_:diddisconnectfromremotedevicewitherror:)).
