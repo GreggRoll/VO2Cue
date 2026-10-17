@@ -44,6 +44,10 @@ struct SettingsView: View {
                     Text("Training habit")
                 }
                 Section {
+                    NavigationLink { HeartRateSettingsView() } label: { Label("Heart-rate targets", systemImage: "heart.fill") }
+                    NavigationLink { HeartSyncTestingView() } label: { Label("Heart Sync Preview", systemImage: "applewatch") }
+                } header: { Text("Heart rate · testing preview") }
+                Section {
                     Toggle("Save completed workouts", isOn: $model.healthSavingEnabled)
                     LabeledContent("Permission", value: model.healthStore.authorizationState.title)
                     Button {
@@ -65,7 +69,7 @@ struct SettingsView: View {
                 } header: {
                     Text("Apple Health")
                 } footer: {
-                    Text("VO2Cue asks only for workout permission. If access is denied, the timer and local history still work.")
+                    Text("Phone timers request workout permission. Live Watch workouts also request heart-rate access on Watch and are saved there. Without access, the phone timer and local history still work.")
                 }
 
                 Section("Privacy") {

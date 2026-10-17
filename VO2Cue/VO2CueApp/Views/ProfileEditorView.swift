@@ -62,6 +62,7 @@ struct ProfileEditorView: View {
                     Toggle("Spoken cues", isOn: $draft.cues.voiceEnabled)
                     Toggle("Halfway cue", isOn: $draft.cues.halfwayCueEnabled)
                 }
+                ProfileHeartRateSection(profile: $draft, preferences: model.heartPreferences)
             }
             .navigationTitle("Workout profile")
             .navigationBarTitleDisplayMode(.inline)
@@ -75,6 +76,9 @@ struct ProfileEditorView: View {
                         model.upsert(draft)
                         dismiss()
                     }
+                    .disabled(draft.heartRateGuidance?.enabled == true &&
+                        [draft.heartRateGuidance?.hardOverride, draft.heartRateGuidance?.recoveryOverride]
+                            .compactMap { $0 }.contains { !$0.isValid })
                 }
             }
             .onChange(of: cooldownEnabled) { _, enabled in

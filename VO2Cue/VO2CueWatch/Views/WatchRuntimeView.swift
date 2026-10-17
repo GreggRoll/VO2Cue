@@ -18,13 +18,14 @@ struct WatchRuntimeView: View {
             }
         }
         .confirmationDialog("End workout?", isPresented: $confirmEnd) {
-            Button("End workout", role: .destructive) { runtime.end() }
+            Button("End workout", role: .destructive) { model.control(.end) }
             Button("Cancel", role: .cancel) { }
         }
     }
 
     private var timerPage: some View {
-        VStack(spacing: 7) {
+        ScrollView {
+        VStack(spacing: 5) {
             Label(runtime.snapshot.phase.displayTitle, systemImage: runtime.snapshot.phase.kind.systemImage)
                 .font(.headline)
                 .lineLimit(1)
@@ -35,7 +36,7 @@ struct WatchRuntimeView: View {
                     .foregroundStyle(.secondary)
             }
             Text(runtime.snapshot.remainingSeconds.timerText)
-                .font(.system(size: 43, weight: .bold, design: .rounded))
+                .font(.system(size: 38, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .minimumScaleFactor(0.7)
                 .contentTransition(.numericText(countsDown: true))
@@ -43,11 +44,8 @@ struct WatchRuntimeView: View {
                 .accessibilityValue(runtime.snapshot.remainingSeconds.timerText)
             ProgressView(value: runtime.snapshot.progress)
                 .tint(.primary)
-            if let heartRate = model.healthSession.heartRate {
-                Label("\(Int(heartRate)) BPM", systemImage: "heart.fill")
-                    .font(.caption)
-                    .foregroundStyle(.red)
-            }
+            WatchHeartRateReadout(feed: model.heartRate, runtime: runtime)
+        }
         }
         .padding(.horizontal, 4)
         .containerBackground(phaseColor.gradient, for: .tabView)
@@ -56,13 +54,13 @@ struct WatchRuntimeView: View {
     private var controlsPage: some View {
         VStack(spacing: 9) {
             Button {
-                runtime.status == .paused ? runtime.resume() : runtime.pause()
+                model.control(runtime.status == .paused ? .resume : .pause)
             } label: {
                 Label(runtime.status == .paused ? "Resume" : "Pause", systemImage: runtime.status == .paused ? "play.fill" : "pause.fill")
             }
             .tint(.orange)
 
-            Button("Skip", systemImage: "forward.end.fill") { runtime.skip() }
+            Button("Skip", systemImage: "forward.end.fill") { model.control(.skip) }
                 .tint(.blue)
             Button("End", systemImage: "xmark") { confirmEnd = true }
                 .tint(.red)
@@ -98,7 +96,8 @@ struct WatchRuntimeView: View {
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
-                Button("Done") { model.closeRuntime() }
+                Button(model.isFinishing ? "Saving workout…" : "Done") { model.closeRuntime() }
+                    .disabled(model.isFinishing)
                     .buttonStyle(.borderedProminent)
             }
         }

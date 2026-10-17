@@ -10,8 +10,11 @@ final class CueCoordinator {
     private let audioEngine = AVAudioEngine()
     private let playerNode = AVAudioPlayerNode()
     private var isAudioReady = false
+    private var lastIntervalCue = Date.distantPast
 
     func handle(_ event: WorkoutRuntimeEvent, profile: WorkoutProfile) {
+        lastIntervalCue = Date()
+        speechSynthesizer.stopSpeaking(at: .immediate)
         switch event {
         case .countdown(let value):
             playHaptic(.countdown, enabled: profile.cues.hapticsEnabled)
@@ -34,6 +37,18 @@ final class CueCoordinator {
             playTone(frequency: 880, duration: 0.4, enabled: profile.cues.tonesEnabled)
             speak("Workout complete", enabled: profile.cues.voiceEnabled)
         }
+    }
+
+    func handleHeartRate(_ status: HeartRateStatus, profile: WorkoutProfile) {
+        guard profile.heartRateGuidance?.cuesEnabled == true,
+              Date().timeIntervalSince(lastIntervalCue) > 5,
+              status == .above || status == .below else { return }
+        #if os(watchOS)
+        if profile.cues.hapticsEnabled {
+            WKInterfaceDevice.current().play(status == .above ? .directionDown : .directionUp)
+        }
+        #endif
+        speak(status == .above ? "Ease your effort" : "Build gradually", enabled: profile.cues.voiceEnabled)
     }
 
     private func speak(_ phrase: String, enabled: Bool) {

@@ -119,7 +119,7 @@ private struct ProfileDetailView: View {
                 Button {
                     model.start(profile)
                 } label: {
-                    Label(model.isPreparingWorkout ? "Preparing audio…" : "Start workout", systemImage: "play.fill")
+                    Label(model.isPreparingWorkout ? "Preparing workout…" : (profile.heartRateGuidance?.enabled == true ? "Start with Apple Watch" : "Start workout"), systemImage: "play.fill")
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 8)
                 }
@@ -127,12 +127,21 @@ private struct ProfileDetailView: View {
                 .controlSize(.large)
                 .disabled(model.isPreparingWorkout)
                 .accessibilityHint("Prepares cues and starts the workout timer")
-                .alert("Workout audio", isPresented: Binding(
+                .alert("Workout", isPresented: Binding(
                     get: { model.workoutErrorMessage != nil && model.activeRuntime == nil },
                     set: { if !$0 { model.workoutErrorMessage = nil } }
                 )) {
                     Button("OK") { model.workoutErrorMessage = nil }
                 } message: { Text(model.workoutErrorMessage ?? "") }
+                if profile.heartRateGuidance?.enabled == true {
+                    Text("Apple Watch owns this workout and sends live heart rate to iPhone. Keep both nearby to use phone controls.")
+                        .font(.footnote).foregroundStyle(.secondary)
+                    Button("Use phone timer without heart rate") { model.startPhoneTimer(profile) }
+                        .disabled(model.isPreparingWorkout)
+                } else {
+                    Button("Start with Apple Watch", systemImage: "applewatch") { model.startWithWatch(profile) }
+                        .disabled(model.isPreparingWorkout)
+                }
             }
             .padding()
         }

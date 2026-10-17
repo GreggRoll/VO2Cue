@@ -1,7 +1,7 @@
 import Foundation
 import Observation
 
-enum WorkoutRuntimeStatus: Equatable, Sendable {
+enum WorkoutRuntimeStatus: String, Codable, Equatable, Sendable {
     case idle
     case running
     case paused
@@ -19,7 +19,8 @@ enum WorkoutRuntimeEvent: Equatable, Sendable {
 @MainActor
 @Observable
 final class WorkoutRuntime: Identifiable {
-    let id = UUID()
+    let id: UUID
+    let isMirrored: Bool
     let profile: WorkoutProfile
     let timeline: WorkoutTimeline
 
@@ -35,15 +36,22 @@ final class WorkoutRuntime: Identifiable {
     @ObservationIgnored private var ticker: Task<Void, Never>?
     @ObservationIgnored private var lastCountdownValue: Int?
     @ObservationIgnored private var halfwayPhaseIDs: Set<UUID> = []
+    @ObservationIgnored private var remoteState: WorkoutSessionState?
+    @ObservationIgnored private(set) var remoteRevision = -1
     @ObservationIgnored var changeHandler: ((WorkoutRuntime) -> Void)?
     @ObservationIgnored private let eventHandler: (WorkoutRuntimeEvent) -> Void
 
     init(
         profile: WorkoutProfile,
+        id: UUID = UUID(),
+        timeline suppliedTimeline: WorkoutTimeline? = nil,
+        isMirrored: Bool = false,
         eventHandler: @escaping (WorkoutRuntimeEvent) -> Void = { _ in }
     ) {
         let cleanProfile = profile.sanitized
-        let timeline = WorkoutTimeline(profile: cleanProfile)
+        let timeline = suppliedTimeline ?? WorkoutTimeline(profile: cleanProfile)
+        self.id = id
+        self.isMirrored = isMirrored
         self.profile = cleanProfile
         self.timeline = timeline
         self.eventHandler = eventHandler
@@ -83,6 +91,7 @@ final class WorkoutRuntime: Identifiable {
     }
 
     func start(at date: Date = Date()) {
+        guard !isMirrored else { return }
         guard status == .idle else { return }
         startedAt = date
         resumeAnchor = date
@@ -93,6 +102,7 @@ final class WorkoutRuntime: Identifiable {
     }
 
     func pause(at date: Date = Date()) {
+        guard !isMirrored else { return }
         guard status == .running else { return }
         update(at: date, emitCues: false)
         guard status == .running else { return }
@@ -104,6 +114,7 @@ final class WorkoutRuntime: Identifiable {
     }
 
     func resume(at date: Date = Date()) {
+        guard !isMirrored else { return }
         guard status == .paused else { return }
         resumeAnchor = date
         status = .running
@@ -112,6 +123,7 @@ final class WorkoutRuntime: Identifiable {
     }
 
     func skip(at date: Date = Date()) {
+        guard !isMirrored else { return }
         guard status == .running || status == .paused else { return }
         // Settle elapsed time first: a delayed tap may belong to a later phase.
         update(at: date, emitCues: false)
@@ -126,6 +138,7 @@ final class WorkoutRuntime: Identifiable {
     }
 
     func end(at date: Date = Date()) {
+        guard !isMirrored else { return }
         guard status == .running || status == .paused else { return }
         update(at: date, emitCues: false)
         guard status == .running || status == .paused else { return }
@@ -139,6 +152,13 @@ final class WorkoutRuntime: Identifiable {
     }
 
     func update(at date: Date = Date(), emitCues: Bool = true) {
+        if isMirrored {
+            guard let remoteState, status == .running else { return }
+            // Project briefly between heartbeats. A dropped link never runs a second workout engine.
+            let delta = min(3, max(0, date.timeIntervalSince(remoteState.sentAt)))
+            updateSnapshot(elapsed: min(remoteState.elapsed + delta, Double(timeline.totalDurationSeconds)), emitCues: false)
+            return
+        }
         guard status == .running || status == .paused else { return }
         let previousPhase = snapshot.phaseIndex
         let previousStatus = status
@@ -217,5 +237,54 @@ final class WorkoutRuntime: Identifiable {
                 self.update()
             }
         }
+    }
+
+    func sessionState(revision: Int, heartRate: HeartRatePresentation, at date: Date = Date()) -> WorkoutSessionState? {
+        guard let startedAt else { return nil }
+        return WorkoutSessionState(sessionID: id, revision: revision, sentAt: date, profile: profile,
+            timeline: timeline, status: status, startedAt: startedAt, endedAt: endedAt,
+            elapsed: snapshot.elapsedSeconds, phaseActiveSeconds: phaseActiveSeconds,
+            skippedPhaseIDs: skippedPhaseIDs, heartRate: heartRate)
+    }
+
+    @discardableResult
+    func applyRemoteState(_ state: WorkoutSessionState, at date: Date = Date()) -> Bool {
+        guard isMirrored, state.isValid, state.sessionID == id, state.revision > remoteRevision,
+              state.timeline == timeline else { return false }
+        if endedAt != nil, state.status == .running || state.status == .paused { return false }
+        remoteRevision = state.revision
+        remoteState = state
+        startedAt = state.startedAt
+        endedAt = state.endedAt
+        status = state.status
+        accumulatedElapsed = state.elapsed
+        phaseActiveSeconds = state.phaseActiveSeconds
+        skippedPhaseIDs = state.skippedPhaseIDs
+        updateSnapshot(elapsed: state.elapsed, emitCues: false)
+        ticker?.cancel()
+        if status == .running { startTicker(); update(at: date) }
+        return true
+    }
+
+    // Restore the Watch's own checkpoint only after HealthKit recovers its active primary session.
+    func restorePrimary(_ state: WorkoutSessionState, running: Bool, at date: Date = Date()) {
+        guard !isMirrored, state.isValid, state.sessionID == id else { return }
+        startedAt = state.startedAt
+        accumulatedElapsed = state.elapsed
+        phaseActiveSeconds = state.phaseActiveSeconds
+        skippedPhaseIDs = state.skippedPhaseIDs
+        status = running ? .running : .paused
+        resumeAnchor = running ? state.sentAt : nil
+        updateSnapshot(elapsed: state.elapsed, emitCues: false)
+        update(at: date, emitCues: false)
+        if status == .running { startTicker() }
+    }
+
+    func finishMirror(at date: Date, record: WorkoutRecord? = nil) {
+        guard isMirrored else { return }
+        endedAt = record?.endedAt ?? date
+        status = record?.completed == true ? .completed : .ended
+        if let results = record?.phaseResults { phaseActiveSeconds = results.map(\.activeSeconds) }
+        ticker?.cancel()
     }
 }

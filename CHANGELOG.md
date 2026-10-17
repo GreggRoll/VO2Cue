@@ -2,6 +2,15 @@
 
 All notable VO2Cue changes are documented here.
 
+## 1.2 (6) — Heart Sync Preview
+
+- Added opt-in hard/recovery heart-rate targets, a confirmed personal maximum, and per-profile BPM overrides.
+- Added a timer-first iPhone heart-rate card and compact Watch status, with freshness, transition grace, trend classification and optional coaching cues.
+- Added Watch-owned HealthKit workout mirroring, acknowledged phone controls, bounded message delivery, reconnection snapshots and Watch session recovery.
+- Coordinated Watch pause/resume with HealthKit and prevented duplicate Health saves from the iPhone mirror.
+- Added Heart Sync Preview diagnostics, a 6½-minute test profile, and a dedicated internal TestFlight testing group.
+- Preserved legacy profiles/history and phone-only workout behavior. Physical sensor and connectivity validation remains a TestFlight task.
+
 ## Unreleased — Consistency and progress
 
 ### Added

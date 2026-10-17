@@ -8,6 +8,8 @@ final class WatchConnectivityStore: NSObject, WCSessionDelegate {
     private var accessHandler: ((WatchPurchaseAccess) -> Void)?
     private var pendingAccess: WatchPurchaseAccess?
     private var pendingProfiles: [WorkoutProfile]?
+    var preferencesHandler: ((HeartRatePreferences) -> Void)?
+    var startHandler: ((WatchWorkoutStartRequest) async -> (Bool, String?))?
     private let logger = Logger(subsystem: "com.gregadams.vo2cue.watchkitapp", category: "WatchConnectivity")
 
     override init() {
@@ -58,9 +60,13 @@ final class WatchConnectivityStore: NSObject, WCSessionDelegate {
     nonisolated private func receive(payload: [String: Any]) -> Bool {
         let profiles = WatchConnectivityPayload.decodeProfiles(from: payload)
         let access = WatchConnectivityPayload.decodeAccess(from: payload)
-        guard profiles != nil || access != nil else { return false }
+        let preferences = (payload[WatchConnectivityPayload.heartPreferencesKey] as? Data).flatMap {
+            try? JSONDecoder().decode(HeartRatePreferences.self, from: $0)
+        }
+        guard profiles != nil || access != nil || preferences != nil else { return false }
         Task { @MainActor [weak self] in
             guard let self else { return }
+            if let preferences { self.preferencesHandler?(preferences) }
             if let profiles {
                 if self.profilesHandler == nil { self.pendingProfiles = profiles }
                 else { self.deliver(profiles) }
@@ -102,6 +108,18 @@ final class WatchConnectivityStore: NSObject, WCSessionDelegate {
         didReceiveMessage message: [String: Any],
         replyHandler: @escaping ([String: Any]) -> Void
     ) {
+        if let data = message[WatchConnectivityPayload.startRequestKey] as? Data,
+           let request = try? JSONDecoder().decode(WatchWorkoutStartRequest.self, from: data) {
+            Task { @MainActor [weak self] in
+                guard let self, let handler = self.startHandler else {
+                    replyHandler(["accepted": false, "message": "VO2Cue is still opening on Watch. Try again."])
+                    return
+                }
+                let result = await handler(request)
+                replyHandler(["accepted": result.0, "message": result.1 ?? ""])
+            }
+            return
+        }
         replyHandler(["received": receive(payload: message)])
     }
 }

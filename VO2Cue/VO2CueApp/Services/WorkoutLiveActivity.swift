@@ -6,17 +6,27 @@ import OSLog
 final class WorkoutLiveActivity {
     private var activity: Activity<WorkoutActivityAttributes>?
     private var updates: Task<Void, Never>?
+    private var lastMirroredUpdate = Date.distantPast
+    private var lastMirroredPhase: UUID?
+    private var lastMirroredStatus: WorkoutRuntimeStatus?
     private let logger = Logger(subsystem: "com.gregadams.vo2cue", category: "LiveActivity")
 
     init() {
-        // A previous process's timer no longer owns these activities.
-        let previous = Activity<WorkoutActivityAttributes>.activities
-        updates = Task {
-            for activity in previous { await activity.end(nil, dismissalPolicy: .immediate) }
-        }
+        // A mirrored HealthKit session can relaunch this process in the background.
+        activity = Activity<WorkoutActivityAttributes>.activities.first
     }
 
     func start(_ runtime: WorkoutRuntime) {
+        if activity != nil {
+            if !runtime.isMirrored || lastMirroredPhase != runtime.snapshot.phase.id
+                || lastMirroredStatus != runtime.status || Date().timeIntervalSince(lastMirroredUpdate) >= 15 {
+                lastMirroredPhase = runtime.snapshot.phase.id
+                lastMirroredStatus = runtime.status
+                lastMirroredUpdate = Date()
+                update(runtime)
+            }
+            return
+        }
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
         do {
             activity = try Activity.request(
@@ -24,6 +34,16 @@ final class WorkoutLiveActivity {
                 content: content(runtime), pushType: nil
             )
         } catch { logger.error("Could not start workout Live Activity: \(error.localizedDescription)") }
+    }
+
+    func prepareForMirroredWorkout() {
+        guard activity == nil, ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+        let now = Date()
+        let state = WorkoutActivityAttributes.ContentState(phaseTitle: "Connecting to Apple Watch", symbol: "applewatch",
+            round: nil, nextPhase: "Waiting for workout", phaseStart: now, phaseEnd: now,
+            remainingSeconds: 0, isPaused: true, isFinished: false)
+        activity = try? Activity.request(attributes: WorkoutActivityAttributes(workoutName: "Apple Watch workout"),
+            content: ActivityContent(state: state, staleDate: now.addingTimeInterval(20)), pushType: nil)
     }
 
     func update(_ runtime: WorkoutRuntime) {

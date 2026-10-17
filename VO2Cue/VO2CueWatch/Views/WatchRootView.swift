@@ -48,6 +48,9 @@ struct WatchRootView: View {
             }
         }
         .task { await model.purchases.start() }
+        .alert("Apple Watch workout", isPresented: Binding(get: { model.startError != nil },
+            set: { if !$0 { model.startError = nil } })) { Button("OK") { model.startError = nil } }
+            message: { Text(model.startError ?? "") }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { Task { await model.purchases.refreshAccess() } }
         }
@@ -74,9 +77,13 @@ private struct WatchProfileView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
-                Button("Start", systemImage: "play.fill") {
+                if profile.heartRateGuidance?.enabled == true {
+                    Label("Heart-rate guidance", systemImage: "heart.fill").font(.caption2)
+                }
+                Button(model.isPreparing ? "Preparing…" : "Start", systemImage: "play.fill") {
                     model.start(profile)
                 }
+                .disabled(model.isPreparing)
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
             }

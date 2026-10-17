@@ -61,6 +61,7 @@ struct WorkoutProfile: Codable, Equatable, Hashable, Identifiable, Sendable {
     var hardCueLabel: String
     var recoveryCueLabel: String
     var cues: CueSettings
+    var heartRateGuidance: HeartRateGuidance?
 
     init(
         id: UUID = UUID(),
@@ -74,7 +75,8 @@ struct WorkoutProfile: Codable, Equatable, Hashable, Identifiable, Sendable {
         countdownSeconds: Int,
         hardCueLabel: String,
         recoveryCueLabel: String,
-        cues: CueSettings
+        cues: CueSettings,
+        heartRateGuidance: HeartRateGuidance? = nil
     ) {
         self.id = id
         self.name = name
@@ -88,6 +90,7 @@ struct WorkoutProfile: Codable, Equatable, Hashable, Identifiable, Sendable {
         self.hardCueLabel = hardCueLabel
         self.recoveryCueLabel = recoveryCueLabel
         self.cues = cues
+        self.heartRateGuidance = heartRateGuidance
     }
 
     static let norwegian4x4 = WorkoutProfile(
@@ -145,6 +148,7 @@ extension WorkoutProfile {
             && lhs.hardCueLabel == rhs.hardCueLabel
             && lhs.recoveryCueLabel == rhs.recoveryCueLabel
             && lhs.cues == rhs.cues
+            && lhs.heartRateGuidance == rhs.heartRateGuidance
     }
 
     func hash(into hasher: inout Hasher) {

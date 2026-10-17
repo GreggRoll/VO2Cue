@@ -1,0 +1,19 @@
+HEART SYNC PREVIEW — version 1.2, build 6
+
+Install this build on BOTH iPhone and Apple Watch. This is a dedicated testing preview.
+
+QUICK START
+Open Settings > Heart-rate targets. Enter and save your own confirmed maximum BPM and its source, or configure custom BPM ranges in a workout profile. Then open Settings > Heart Sync Preview and add the 6½-minute Heart Sync Check workout. Tap Start with Apple Watch and allow workout/heart-rate permissions on Watch. You can also start the profile directly on Watch.
+
+WHAT TO TEST
+• Compare phase, round, countdown, raw BPM and phase target on both screens.
+• Pause, resume, skip and end from each device. Phone controls wait for Watch confirmation.
+• Try a hard/recovery transition. Building suppresses low-work coaching for 90 seconds; Settling suppresses high-recovery cues for 60 seconds. Below-target recovery should say Keep recovery easy. These are product parameters for evaluation.
+• Status uses a recent 10-second trend, with 3 BPM hysteresis. Cues require sustained fresh readings, have a 45-second cooldown, and obey your heart-rate cue and spoken-cue settings.
+• Lock/background iPhone and lower your wrist. Enable VO2Cue Live Activities for locked-phone testing. The Live Activity shows the interval timer; reopen the app to compare current HR/state.
+• Move out of range and return. Watch should keep running; phone controls disable while connection is delayed and resynchronize on return.
+• Create a sensor gap. After 15 seconds without a fresh sample, BPM/comparison must disappear while timing continues. Also test swimming/wrist-motion gaps.
+• Finish and end early. Check one history entry and one Apple Health workout, with paused/skipped time excluded.
+• Open Sync diagnostics during the workout to see reading age, update age and estimated delivery delay. Delivery uses device clocks and does not measure sensor latency.
+
+Existing phone-only timers and saved profiles/history remain available. No fake HR is used in TestFlight. Time-in-zone scores and post-workout HR charts are not included in this preview. Physical-device sensor, background and reconnection behavior is the focus of testing.

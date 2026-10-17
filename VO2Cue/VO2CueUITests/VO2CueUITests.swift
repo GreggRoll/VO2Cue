@@ -56,6 +56,74 @@ final class VO2CueUITests: XCTestCase {
         add(attachment)
     }
 
+    func testHeartSyncPreviewShowsPhaseTargetsAndClearsStaleOrPausedReadings() {
+        for (fixture, target, status) in [("work", "Target 153–171", "In target"),
+                                          ("recovery", "Target 108–126", "In target"),
+                                          ("missing", "Target 153–171", "No fresh reading"),
+                                          ("paused", "Target 153–171", "Workout paused")] {
+            app.terminate()
+            app.launchArguments = ["-hasCompletedOnboarding", "YES", "-hasAlreadyReviewed", "YES",
+                                   "-purchaseFixture", "paid", "-heartSyncFixture", fixture, "-healthSavingEnabled", "NO"]
+            app.launch()
+            XCTAssertTrue(app.staticTexts["heartRateStatus"].waitForExistence(timeout: 5))
+            XCTAssertEqual(app.staticTexts["heartRateStatus"].label, status)
+            XCTAssertTrue(app.staticTexts[target].exists)
+            if fixture == "work" || fixture == "recovery" {
+                XCTAssertTrue(app.staticTexts["currentHeartRate"].label.contains(fixture == "work" ? "164" : "119"))
+            } else {
+                XCTAssertEqual(app.staticTexts["currentHeartRate"].label, "No current heart-rate reading")
+            }
+            XCTAssertTrue(app.staticTexts["Simulated preview · Debug only"].exists)
+            captureScreen("Heart Sync \(fixture)")
+        }
+    }
+
+    func testHeartSyncSettingsAndProfileGuidance() {
+        app.tabBars.buttons["Settings"].tap()
+        let targets = app.buttons["Heart-rate targets"]
+        for _ in 0..<4 where !targets.isHittable { app.swipeUp() }
+        targets.tap()
+        let maximum = app.textFields["maximumHeartRate"]
+        XCTAssertTrue(maximum.waitForExistence(timeout: 3))
+        maximum.tap()
+        maximum.clearAndType("180")
+        app.buttons["Save maximum"].tap()
+        XCTAssertTrue(app.staticTexts["Maximum saved"].waitForExistence(timeout: 3))
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        app.tabBars.buttons["Workouts"].tap()
+        app.buttons["New Workout"].tap()
+        let toggle = app.switches["heartRateGuidanceToggle"]
+        for _ in 0..<7 where !toggle.isHittable { app.swipeUp() }
+        XCTAssertTrue(toggle.exists)
+        toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        XCTAssertEqual(toggle.value as? String, "1")
+        let hardTarget = app.staticTexts["Hard, 153–171 BPM"]
+        scrollTo(hardTarget)
+        XCTAssertTrue(hardTarget.exists)
+        let recoveryTarget = app.staticTexts["Recovery, 108–126 BPM"]
+        scrollTo(recoveryTarget)
+        XCTAssertTrue(recoveryTarget.exists)
+        captureScreen("Heart Sync Profile Targets")
+        app.navigationBars["Workout profile"].buttons["Cancel"].tap()
+    }
+
+    func testHeartSyncAtLargestAccessibilityTextSize() {
+        app.terminate()
+        app.launchArguments = ["-hasCompletedOnboarding", "YES", "-hasAlreadyReviewed", "YES", "-purchaseFixture", "paid",
+                               "-heartSyncFixture", "work", "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
+        app.launch()
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let notNow = springboard.alerts["Apple Account Required"].buttons["Not Now"]
+        if notNow.waitForExistence(timeout: 2) { notNow.tap() }
+        XCTAssertTrue(app.staticTexts["currentHeartRate"].waitForExistence(timeout: 5))
+        app.swipeUp()
+        scrollTo(app.staticTexts["heartRateStatus"])
+        XCTAssertEqual(app.staticTexts["heartRateStatus"].label, "In target")
+        XCTAssertTrue(app.staticTexts["heartRateStatus"].isHittable)
+        XCTAssertTrue(app.buttons["Pause"].isHittable)
+        captureScreen("Heart Sync Largest Text")
+    }
+
     func testFeedbackRequiresSubjectButMessageIsOptional() {
         app.tabBars.buttons["Settings"].tap()
         let feedback = app.buttons["Send feedback"]

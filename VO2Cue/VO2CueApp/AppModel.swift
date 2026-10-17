@@ -20,6 +20,17 @@ final class AppModel {
     let purchases = PurchaseStore()
     let trainingProgress = TrainingProgressStore()
     let reminders = WorkoutReminderStore()
+    let workoutMirror = PhoneWorkoutMirror()
+    var heartPreferences: HeartRatePreferences {
+        didSet {
+            try? Persistence.save(heartPreferences, fileName: "heart-preferences.json")
+            connectivity.sync(heartPreferences: heartPreferences)
+        }
+    }
+    @ObservationIgnored private var pendingWatchStartID: UUID?
+    #if DEBUG
+    @ObservationIgnored private var fixtureTask: Task<Void, Never>?
+    #endif
     var selectedTab: AppTab = .workouts
     var workoutsNavigationPath: [UUID] = []
     private(set) var pendingWidgetWorkoutID: UUID?
@@ -38,6 +49,7 @@ final class AppModel {
         healthSavingEnabled = UserDefaults.standard.object(forKey: Self.healthSavingKey) == nil
             ? true : UserDefaults.standard.bool(forKey: Self.healthSavingKey)
         healthStore = HealthStore()
+        heartPreferences = Persistence.load(HeartRatePreferences.self, fileName: "heart-preferences.json") ?? .init()
         reminders.installNotificationHandler()
 
         connectivity.setRecordHandler { [weak self] record in
@@ -47,7 +59,19 @@ final class AppModel {
             self?.watchSyncStatus = status
         }
         trainingProgress.onGoalChange = { [weak self] in self?.refreshWidgets() }
+        workoutMirror.onState = { [weak self] state in self?.receiveWatchState(state) }
+        workoutMirror.onSessionReady = { [weak self] in self?.liveActivity.prepareForMirroredWorkout() }
+        workoutMirror.onEnded = { [weak self] date in
+            guard let self, let runtime = self.activeRuntime, runtime.isMirrored,
+                  runtime.status == .running || runtime.status == .paused else { return }
+            runtime.finishMirror(at: date)
+            self.liveActivity.update(runtime)
+        }
+        connectivity.sync(heartPreferences: heartPreferences)
         persistProfiles()
+        #if DEBUG
+        configureHeartSyncFixture()
+        #endif
     }
 
     var completedSessions: Int {
@@ -85,7 +109,8 @@ final class AppModel {
             countdownSeconds: profile.countdownSeconds,
             hardCueLabel: profile.hardCueLabel,
             recoveryCueLabel: profile.recoveryCueLabel,
-            cues: profile.cues
+            cues: profile.cues,
+            heartRateGuidance: profile.heartRateGuidance
         )
         copy = copy.sanitized
         profiles.append(copy)
@@ -99,7 +124,43 @@ final class AppModel {
     }
 
     func start(_ profile: WorkoutProfile) {
+        if profile.heartRateGuidance?.enabled == true { startWithWatch(profile); return }
+        startPhoneTimer(profile)
+    }
+
+    func startWithWatch(_ profile: WorkoutProfile) {
         guard purchases.isUnlocked, !isPreparingWorkout, activeRuntime == nil else { return }
+        isPreparingWorkout = true
+        workoutErrorMessage = nil
+        let id = UUID()
+        pendingWatchStartID = id
+        let resolved = profile.resolvingHeartRate(heartPreferences)
+        Task {
+            defer { isPreparingWorkout = false; pendingWatchStartID = nil }
+            do {
+                try await workoutMirror.wakeWatch(profile: resolved)
+                let request = WatchWorkoutStartRequest(id: id, profile: resolved, expiresAt: Date().addingTimeInterval(40))
+                try await connectivity.startWorkout(request)
+                let deadline = Date().addingTimeInterval(12)
+                while activeRuntime?.id != id, Date() < deadline {
+                    try await Task.sleep(for: .milliseconds(200))
+                }
+                if activeRuntime?.id != id {
+                    workoutErrorMessage = "Watch accepted the workout but live mirroring has not connected. Check Watch; its workout may already be running."
+                }
+            } catch {
+                // A mirrored state may have arrived before the start acknowledgement.
+                if activeRuntime?.id != id { workoutErrorMessage = error.localizedDescription }
+            }
+        }
+    }
+
+    func startPhoneTimer(_ profile: WorkoutProfile) {
+        guard purchases.isUnlocked, !isPreparingWorkout, activeRuntime == nil else { return }
+        guard !workoutMirror.hasSession else {
+            workoutErrorMessage = "An Apple Watch workout is active or reconnecting. Finish it on Watch before starting a phone timer."
+            return
+        }
         isPreparingWorkout = true
         workoutErrorMessage = nil
         finishedWorkoutForReview = false
@@ -157,6 +218,7 @@ final class AppModel {
 
     func skipPhase() {
         guard let runtime = activeRuntime else { return }
+        if runtime.isMirrored { workoutMirror.control(.skip, runtime: runtime); return }
         runtime.skip()
         if runtime.status == .running || runtime.status == .completed {
             do { try workoutAudio.play(from: runtime.snapshot.elapsedSeconds) }
@@ -165,6 +227,48 @@ final class AppModel {
                 workoutErrorMessage = "Audio could not restart. Please check your audio output and resume."
             }
         }
+    }
+
+    func controlWorkout(_ control: WorkoutControl) {
+        guard let runtime = activeRuntime else { return }
+        if runtime.isMirrored { workoutMirror.control(control, runtime: runtime); return }
+        switch control {
+        case .pause: runtime.pause()
+        case .resume: runtime.resume()
+        case .skip: skipPhase()
+        case .end: runtime.end()
+        }
+    }
+
+    private func receiveWatchState(_ state: WorkoutSessionState) {
+        guard state.isValid else { return }
+        if let record = history.first(where: { $0.id == state.sessionID }) {
+            workoutMirror.receivedCompletedRecord(id: record.id)
+            if let runtime = activeRuntime, runtime.isMirrored, runtime.id == record.id {
+                runtime.finishMirror(at: record.endedAt, record: record)
+                liveActivity.update(runtime)
+            }
+            return
+        }
+        if let current = activeRuntime, current.id != state.sessionID {
+            if current.isMirrored, current.status == .running || current.status == .paused { return }
+            // Starting on Watch supersedes a phone timer rather than running two engines.
+            if !current.isMirrored { current.end(); workoutAudio.stop() }
+            activeRuntime = nil
+        }
+        if activeRuntime == nil {
+            let runtime = WorkoutRuntime(profile: state.profile, id: state.sessionID, timeline: state.timeline, isMirrored: true)
+            activeRuntime = runtime
+            finishedWorkoutForReview = false
+        }
+        guard let runtime = activeRuntime, runtime.applyRemoteState(state) else { return }
+        let feed = workoutMirror.heartRate
+        feed.presentation = state.heartRate
+        feed.receivedAt = Date()
+        feed.sentAt = state.sentAt
+        feed.isConnected = true
+        feed.connectionMessage = "Apple Watch · Live workout"
+        liveActivity.start(runtime)
     }
 
     func dismissRuntime() {
@@ -195,6 +299,11 @@ final class AppModel {
 
     private func storeWatchRecord(_ record: WorkoutRecord) {
         appendRecordIfNeeded(record)
+        workoutMirror.receivedCompletedRecord(id: record.id)
+        if let runtime = activeRuntime, runtime.isMirrored, runtime.id == record.id {
+            runtime.finishMirror(at: record.endedAt, record: record)
+            liveActivity.update(runtime)
+        }
     }
 
     private func appendRecordIfNeeded(_ record: WorkoutRecord) {
@@ -265,6 +374,57 @@ final class AppModel {
         guard let profile = profile(id: id) else { return }
         start(profile)
     }
+
+    #if DEBUG
+    private func configureHeartSyncFixture() {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard let index = arguments.firstIndex(of: "-heartSyncFixture"), arguments.indices.contains(index + 1) else { return }
+        let fixture = arguments[index + 1]
+        let now = Date()
+        var profile = WorkoutProfile.norwegian4x4
+        profile.heartRateGuidance = HeartRateGuidance(maximumBPM: 180)
+        let watch = WorkoutRuntime(profile: profile)
+        let elapsed: Double = fixture == "recovery" ? 1_290 : 1_122
+        watch.start(at: now.addingTimeInterval(-elapsed))
+        watch.update(at: now)
+        if fixture == "paused" { watch.pause(at: now) }
+        let kind = watch.snapshot.phase.kind
+        let sampleDate = fixture == "missing" ? now.addingTimeInterval(-20) : now
+        let reading = HeartRatePresentation(sample: .init(bpm: fixture == "recovery" ? 119 : 164, date: sampleDate), trendBPM: 164,
+            target: profile.heartRateGuidance?.target(for: kind), status: fixture == "paused" ? .paused : .inTarget)
+        guard let state = watch.sessionState(revision: 1, heartRate: reading, at: now) else { return }
+        let runtime = WorkoutRuntime(profile: profile, id: state.sessionID, timeline: state.timeline, isMirrored: true)
+        _ = runtime.applyRemoteState(state, at: now)
+        activeRuntime = runtime
+        let feed = workoutMirror.heartRate
+        feed.presentation = reading
+        feed.isConnected = fixture != "disconnected"
+        feed.isPreviewData = true
+        feed.receivedAt = now
+        feed.sentAt = now.addingTimeInterval(-0.05)
+        feed.connectionMessage = "Simulated preview · Debug only"
+        fixtureTask = Task { [weak self] in
+            defer { watch.end() }
+            var revision = 1
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(1))
+                guard !Task.isCancelled, let self, self.activeRuntime?.id == runtime.id else { return }
+                let currentDate = Date()
+                var reading = reading
+                if fixture != "missing" {
+                    reading.sample = HeartRateSample(bpm: fixture == "recovery" ? 119 : 164, date: currentDate)
+                }
+                revision += 1
+                if let next = watch.sessionState(revision: revision, heartRate: reading, at: currentDate) {
+                    _ = runtime.applyRemoteState(next, at: currentDate)
+                }
+                feed.presentation = reading
+                feed.receivedAt = currentDate
+                feed.isConnected = fixture != "disconnected"
+            }
+        }
+    }
+    #endif
 }
 
 enum AppTab: Hashable {

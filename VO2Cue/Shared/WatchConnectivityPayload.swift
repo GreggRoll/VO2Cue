@@ -4,6 +4,8 @@ enum WatchConnectivityPayload {
     static let profilesKey = "profiles"
     static let recordKey = "record"
     static let accessKey = "purchaseAccess"
+    static let heartPreferencesKey = "heartPreferences"
+    static let startRequestKey = "startWorkout"
 
     static func encodeAccess(_ access: WatchPurchaseAccess) throws -> [String: Any] {
         [accessKey: try JSONEncoder.vo2Cue.encode(access)]

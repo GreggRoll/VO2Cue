@@ -80,6 +80,29 @@ final class PhoneWatchConnectivity: NSObject, WCSessionDelegate {
         }
     }
 
+    func sync(heartPreferences: HeartRatePreferences) {
+        guard let data = try? JSONEncoder().encode(heartPreferences) else { return }
+        latestProfilesPayload[WatchConnectivityPayload.heartPreferencesKey] = data
+        flushLatestProfiles()
+    }
+
+    func startWorkout(_ request: WatchWorkoutStartRequest) async throws {
+        guard WCSession.isSupported(), WCSession.default.isPaired, WCSession.default.isWatchAppInstalled else {
+            throw WatchStartError.unavailable
+        }
+        while !WCSession.default.isReachable, Date() < request.expiresAt {
+            try await Task.sleep(for: .milliseconds(300))
+        }
+        guard Date() < request.expiresAt else { throw WatchStartError.unreachable }
+        let payload = [WatchConnectivityPayload.startRequestKey: try JSONEncoder().encode(request)]
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            WCSession.default.sendMessage(payload) { reply in
+                if reply["accepted"] as? Bool == true { continuation.resume() }
+                else { continuation.resume(throwing: WatchStartError.rejected(reply["message"] as? String ?? "Open VO2Cue on Apple Watch and try again.")) }
+            } errorHandler: { error in continuation.resume(throwing: error) }
+        }
+    }
+
     private func flushLatestProfiles() {
         guard WCSession.isSupported(), !latestProfilesPayload.isEmpty else { return }
         let payload = latestProfilesPayload
@@ -165,6 +188,17 @@ final class PhoneWatchConnectivity: NSObject, WCSessionDelegate {
         guard let record = WatchConnectivityPayload.decodeRecord(from: userInfo) else { return }
         Task { @MainActor [weak self] in
             self?.deliver(record)
+        }
+    }
+}
+
+enum WatchStartError: LocalizedError {
+    case unavailable, unreachable, rejected(String)
+    var errorDescription: String? {
+        switch self {
+        case .unavailable: "Pair an Apple Watch and install VO2Cue on it first. You can still use the phone timer."
+        case .unreachable: "Apple Watch did not connect. Open VO2Cue on your Watch, keep it nearby, and try again."
+        case .rejected(let message): message
         }
     }
 }

@@ -1,0 +1,221 @@
+<div id="vo2-hr-design">
+  <div class="viz-controls" aria-label="Sample workout readings">
+    <label class="form-label">Interval
+      <select class="form-select" id="vo2-phase"><option value="hard">Hard · round 2</option><option value="recovery">Recovery · round 2</option></select>
+    </label>
+    <label class="form-label">Sample reading
+      <select class="form-select" id="vo2-reading"><option value="in">In target</option><option value="low">Below target</option><option value="high">Above target</option><option value="transition">Phase just changed</option><option value="missing">No fresh reading</option></select>
+    </label>
+  </div>
+  <div class="viz-carousel viz-dotted-background" aria-label="VO2Cue workout designs">
+    <section data-variant="Timer first" aria-label="Timer first design">
+      <div class="vo2-stage" data-layout="timer">
+        <div class="vo2-device-column">
+          <div class="vo2-device-label">iPhone</div>
+          <article class="vo2-phone vo2-product" aria-label="iPhone live workout concept">
+            <div class="vo2-system"><span>9:41</span><span class="vo2-island" aria-hidden="true"></span><span>▰</span></div>
+            <div class="vo2-appbar"><span>VO2Cue <span class="vo2-subtle">/ 4×4</span></span><button class="vo2-config cursor-interaction" aria-label="Heart-rate targets"><i data-lucide="sliders-horizontal" aria-hidden="true"></i></button></div>
+            <div class="vo2-workout-body">
+              <div class="vo2-phase-header"><div class="vo2-phase-name">Hard</div><div class="vo2-subtle">Round 2 of 4</div></div>
+              <div class="vo2-time-block"><div class="vo2-time">2:18</div><div class="vo2-subtle vo2-time-label">remaining in hard interval</div><div class="vo2-time-track"><span></span></div></div>
+              <div class="vo2-heart-block" aria-live="polite">
+                <div class="vo2-measure-label"><i data-lucide="heart" aria-hidden="true"></i><span>HEART RATE</span><span class="vo2-percent">91% max</span></div>
+                <div class="vo2-heart-line"><div><span class="vo2-bpm">164</span><span class="vo2-unit"> BPM</span></div><span class="vo2-status">✓ In target</span></div>
+                <div class="vo2-meter" role="img" aria-label="Heart rate within target"><span class="vo2-target-band"></span><span class="vo2-pointer"></span></div>
+                <div class="vo2-range-labels"><span>Below</span><span>Target <span class="vo2-target">153–171</span></span><span>Above</span></div>
+                <div class="vo2-coach">Hold this effort.</div>
+              </div>
+              <div class="vo2-source">Apple Watch · Live</div>
+            </div>
+            <div class="vo2-bottom"><div class="vo2-next"><span class="vo2-subtle">Up next</span><span class="vo2-next-text">Recover · 3:00</span></div><div class="vo2-actions"><button class="vo2-pause cursor-interaction">Pause</button><button class="vo2-skip cursor-interaction">Skip</button></div></div>
+            <div class="vo2-home" aria-hidden="true"></div>
+            <section class="vo2-settings" aria-label="Heart-rate target settings" hidden>
+              <div class="vo2-settings-header"><h3>Heart-rate targets</h3><button class="vo2-done cursor-interaction">Done</button></div>
+              <label>Maximum heart rate <input class="vo2-max-input" type="number" min="100" max="230" value="180" inputmode="numeric"> BPM</label>
+              <div class="vo2-settings-row"><span>Hard · 85–95% max</span><span class="vo2-hard-target">153–171 BPM</span></div>
+              <div class="vo2-settings-row"><span>Recovery · 60–70% max</span><span class="vo2-recovery-target">108–126 BPM</span></div>
+              <div class="vo2-subtle">Example max HR. Use your own measured value or edit your targets.</div>
+              <label class="vo2-toggle-row"><span>Heart-rate cues</span><input type="checkbox" class="vo2-cue-toggle" checked></label>
+            </section>
+          </article>
+        </div>
+        <div class="vo2-device-column vo2-watch-column">
+          <div class="vo2-device-label">Apple Watch</div>
+          <article class="vo2-watch vo2-product" aria-label="Apple Watch live workout concept">
+            <div class="vo2-watch-top"><span class="vo2-phase-name">Hard</span><span class="vo2-subtle">2 / 4</span></div>
+            <div class="vo2-watch-main"><div class="vo2-time">2:18</div><div class="vo2-time-track"><span></span></div></div>
+            <div class="vo2-watch-heart"><div><i data-lucide="heart" aria-hidden="true"></i> <span class="vo2-bpm">164</span><span class="vo2-unit"> BPM</span></div><div class="vo2-status">✓ In target</div><div class="vo2-watch-target">Target <span class="vo2-target">153–171</span> BPM</div></div>
+            <div class="vo2-watch-footer"><button class="vo2-watch-controls cursor-interaction">Controls</button><span>9:41</span></div>
+            <div class="vo2-watch-panel" hidden><button class="vo2-pause cursor-interaction">Pause</button><button class="vo2-skip cursor-interaction">Skip interval</button><button class="vo2-watch-back cursor-interaction">Back</button></div>
+          </article>
+          <div class="vo2-design-label">Timer first</div>
+        </div>
+      </div>
+    </section>
+    <section data-variant="Heart rate first" aria-label="Heart rate first design" hidden></section>
+  </div>
+</div>
+<style>
+  #vo2-hr-design { color-scheme:light dark; }
+  #vo2-hr-design .vo2-stage { --vo2-bg:light-dark(#fbf9f7,#12100f); --vo2-surface:light-dark(#ffffff,#242120); --vo2-ink:light-dark(#211e1c,#f6f3ef); --vo2-muted:light-dark(#706860,#b4aaa2); --vo2-rule:light-dark(#e3ded8,#3b3530); --vo2-phase:light-dark(#b64627,#ff9977); --vo2-phase-fill:light-dark(#f8e9e2,#33231e); --vo2-ok:light-dark(#216548,#8cd7b1); --vo2-ok-fill:light-dark(#e1f0e7,#19382a); --vo2-warning:light-dark(#9a4c00,#ffbf75); --vo2-warning-fill:light-dark(#fff0db,#3b2a17); --vo2-state:var(--vo2-ok); --vo2-state-fill:var(--vo2-ok-fill); display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:32px; padding:24px 8px 32px; min-height:690px; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:var(--vo2-ink); }
+  #vo2-hr-design .vo2-stage[data-phase="recovery"] { --vo2-phase:light-dark(#235eab,#8ebdff); --vo2-phase-fill:light-dark(#e6effa,#182a41); }
+  #vo2-hr-design .vo2-stage[data-status="high"], #vo2-hr-design .vo2-stage[data-status="low"] { --vo2-state:var(--vo2-warning); --vo2-state-fill:var(--vo2-warning-fill); }
+  #vo2-hr-design .vo2-stage[data-status="missing"], #vo2-hr-design .vo2-stage[data-status="transition"], #vo2-hr-design .vo2-stage[data-status="paused"] { --vo2-state:var(--vo2-muted); --vo2-state-fill:var(--vo2-surface); }
+  #vo2-hr-design .vo2-product, #vo2-hr-design .vo2-product * { box-sizing:border-box; }
+  #vo2-hr-design .vo2-device-column { display:flex; flex-direction:column; align-items:center; gap:14px; max-width:100%; }
+  #vo2-hr-design .vo2-device-label { font-size:12px; font-weight:500; letter-spacing:.05em; color:var(--vo2-muted); }
+  #vo2-hr-design .vo2-phone { position:relative; width:326px; max-width:100%; padding:0 20px; border:5px solid var(--vo2-rule); border-radius:44px; background:var(--vo2-bg); box-shadow:0 14px 35px light-dark(#38210c14,#00000038); overflow:hidden; }
+  #vo2-hr-design .vo2-system { display:flex; align-items:center; justify-content:space-between; height:42px; font-size:12px; font-weight:600; }
+  #vo2-hr-design .vo2-island { width:82px; height:22px; border-radius:20px; background:var(--vo2-ink); }
+  #vo2-hr-design .vo2-appbar { display:flex; align-items:center; justify-content:space-between; padding:10px 0 16px; font-size:15px; font-weight:650; }
+  #vo2-hr-design .vo2-subtle { color:var(--vo2-muted); font-weight:400; }
+  #vo2-hr-design .vo2-product button { font:inherit; border:0; }
+  #vo2-hr-design .vo2-config { color:var(--vo2-muted); background:var(--vo2-surface); width:44px; height:44px; border-radius:50%; display:grid; place-items:center; }
+  #vo2-hr-design .vo2-config svg { width:18px; height:18px; }
+  #vo2-hr-design .vo2-workout-body { display:flex; flex-direction:column; gap:21px; }
+  #vo2-hr-design .vo2-phase-header { text-align:center; font-size:13px; }
+  #vo2-hr-design .vo2-phase-name { color:var(--vo2-phase); font-weight:650; font-size:25px; margin-bottom:3px; }
+  #vo2-hr-design .vo2-time-block { text-align:center; }
+  #vo2-hr-design .vo2-time { font-size:72px; line-height:1.06; letter-spacing:-.065em; font-weight:700; font-variant-numeric:tabular-nums; }
+  #vo2-hr-design .vo2-time-label { font-size:12px; margin-top:6px; }
+  #vo2-hr-design .vo2-time-track { height:5px; background:var(--vo2-rule); border-radius:8px; margin-top:18px; overflow:hidden; }
+  #vo2-hr-design .vo2-time-track > span { display:block; height:100%; width:42.5%; background:var(--vo2-phase); border-radius:inherit; }
+  #vo2-hr-design .vo2-heart-block { padding:16px; background:var(--vo2-surface); border-radius:22px; }
+  #vo2-hr-design .vo2-measure-label { display:flex; align-items:center; gap:6px; font-size:10px; letter-spacing:.09em; color:var(--vo2-muted); font-weight:600; }
+  #vo2-hr-design .vo2-measure-label svg { width:13px; height:13px; color:var(--vo2-phase); }
+  #vo2-hr-design .vo2-percent { margin-left:auto; letter-spacing:0; font-size:11px; font-weight:400; }
+  #vo2-hr-design .vo2-heart-line { display:flex; gap:6px; align-items:center; justify-content:space-between; padding:10px 0 17px; }
+  #vo2-hr-design .vo2-bpm { font-size:43px; line-height:1; letter-spacing:-.055em; font-weight:700; font-variant-numeric:tabular-nums; }
+  #vo2-hr-design .vo2-unit { color:var(--vo2-muted); font-size:11px; }
+  #vo2-hr-design .vo2-status { font-size:11px; font-weight:600; white-space:nowrap; color:var(--vo2-state); background:var(--vo2-state-fill); padding:7px 8px; border-radius:9px; }
+  #vo2-hr-design .vo2-meter { position:relative; height:9px; background:var(--vo2-rule); border-radius:7px; }
+  #vo2-hr-design .vo2-target-band { position:absolute; left:33.33%; width:33.34%; top:0; bottom:0; background:var(--vo2-ok); opacity:.55; }
+  #vo2-hr-design .vo2-pointer { position:absolute; top:-4px; width:4px; height:17px; left:53.7%; background:var(--vo2-ink); border-radius:5px; transform:translateX(-2px); }
+  #vo2-hr-design .vo2-range-labels { display:flex; justify-content:space-between; align-items:center; font-size:10px; color:var(--vo2-muted); margin-top:9px; }
+  #vo2-hr-design .vo2-range-labels > span:nth-child(2) { color:var(--vo2-ink); font-weight:500; }
+  #vo2-hr-design .vo2-coach { margin-top:16px; font-size:13px; }
+  #vo2-hr-design .vo2-source { text-align:center; font-size:11px; color:var(--vo2-muted); margin-top:-8px; }
+  #vo2-hr-design .vo2-bottom { margin-top:24px; }
+  #vo2-hr-design .vo2-next { display:flex; justify-content:space-between; gap:8px; padding-bottom:16px; font-size:12px; }
+  #vo2-hr-design .vo2-actions { display:flex; gap:10px; }
+  #vo2-hr-design .vo2-pause { background:var(--vo2-phase-fill); color:var(--vo2-phase); flex:1; padding:14px; border-radius:15px; font-size:14px!important; font-weight:600!important; }
+  #vo2-hr-design .vo2-skip { background:var(--vo2-surface); color:var(--vo2-ink); padding:14px 20px; border-radius:15px; font-size:14px!important; }
+  #vo2-hr-design .vo2-home { width:100px; height:4px; border-radius:10px; background:var(--vo2-ink); margin:20px auto 10px; }
+  #vo2-hr-design .vo2-watch { width:216px; padding:25px 17px 18px; border:6px solid var(--vo2-rule); border-radius:49px; background:var(--vo2-bg); position:relative; box-shadow:0 12px 25px light-dark(#38210c12,#00000038); }
+  #vo2-hr-design .vo2-watch-top { display:flex; align-items:center; justify-content:space-between; font-size:12px; }
+  #vo2-hr-design .vo2-watch .vo2-phase-name { font-size:17px; }
+  #vo2-hr-design .vo2-watch-main { margin-top:10px; }
+  #vo2-hr-design .vo2-watch .vo2-time { font-size:49px; }
+  #vo2-hr-design .vo2-watch .vo2-time-track { margin-top:9px; height:4px; }
+  #vo2-hr-design .vo2-watch-heart { margin-top:18px; }
+  #vo2-hr-design .vo2-watch-heart > div:first-child { display:flex; align-items:baseline; gap:5px; }
+  #vo2-hr-design .vo2-watch-heart svg { width:14px; height:14px; align-self:center; color:var(--vo2-phase); }
+  #vo2-hr-design .vo2-watch .vo2-bpm { font-size:29px; }
+  #vo2-hr-design .vo2-watch .vo2-status { display:inline-block; margin-top:9px; font-size:12px; padding:5px 8px; }
+  #vo2-hr-design .vo2-watch-target { font-size:11px; color:var(--vo2-muted); margin-top:7px; }
+  #vo2-hr-design .vo2-watch-footer { display:flex; justify-content:space-between; align-items:center; font-size:10px; color:var(--vo2-muted); margin-top:12px; }
+  #vo2-hr-design .vo2-watch-controls { padding:8px 0; background:transparent; color:var(--vo2-muted); }
+  #vo2-hr-design .vo2-design-label { color:var(--vo2-muted); font-size:12px; }
+  #vo2-hr-design .vo2-settings { position:absolute; inset:42px 0 0; padding:24px 20px; background:var(--vo2-bg); border-radius:26px; font-size:13px; }
+  #vo2-hr-design .vo2-settings-header { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:28px; }
+  #vo2-hr-design .vo2-settings h3 { font-size:18px; margin:0; }
+  #vo2-hr-design .vo2-done { color:var(--vo2-phase); background:transparent; padding:10px 0; }
+  #vo2-hr-design .vo2-max-input { display:block; width:100%; margin:12px 0 6px; background:var(--vo2-surface); color:var(--vo2-ink); border:1px solid var(--vo2-rule); border-radius:12px; padding:12px; font:inherit; font-size:22px; }
+  #vo2-hr-design .vo2-settings-row { display:flex; flex-direction:column; gap:6px; padding:17px 0; border-bottom:1px solid var(--vo2-rule); }
+  #vo2-hr-design .vo2-settings-row + .vo2-subtle { margin-top:18px; font-size:12px; line-height:1.5; }
+  #vo2-hr-design .vo2-toggle-row { display:flex; align-items:center; justify-content:space-between; margin-top:24px; }
+  #vo2-hr-design .vo2-watch-panel { position:absolute; inset:0; border-radius:42px; background:var(--vo2-bg); padding:38px 16px 22px; }
+  #vo2-hr-design .vo2-watch-panel button { display:block; width:100%; margin-bottom:12px; }
+  #vo2-hr-design .vo2-watch-back { background:transparent; color:var(--vo2-muted); padding:12px; }
+  #vo2-hr-design [data-layout="heart"] .vo2-phone .vo2-heart-block { order:-1; margin-top:4px; }
+  #vo2-hr-design [data-layout="heart"] .vo2-phone .vo2-heart-line { flex-direction:column; align-items:flex-start; gap:15px; }
+  #vo2-hr-design [data-layout="heart"] .vo2-phone .vo2-bpm { font-size:74px; }
+  #vo2-hr-design [data-layout="heart"] .vo2-phone .vo2-status { font-size:13px; }
+  #vo2-hr-design [data-layout="heart"] .vo2-phone .vo2-phase-header { order:-2; }
+  #vo2-hr-design [data-layout="heart"] .vo2-phone .vo2-time { font-size:40px; }
+  #vo2-hr-design [data-layout="heart"] .vo2-phone .vo2-time-track { margin-top:12px; }
+  #vo2-hr-design [data-layout="heart"] .vo2-watch { display:flex; flex-direction:column; }
+  #vo2-hr-design [data-layout="heart"] .vo2-watch-top { order:-3; }
+  #vo2-hr-design [data-layout="heart"] .vo2-watch-heart { order:-2; margin-top:17px; }
+  #vo2-hr-design [data-layout="heart"] .vo2-watch .vo2-bpm { font-size:45px; }
+  #vo2-hr-design [data-layout="heart"] .vo2-watch .vo2-time { font-size:29px; }
+  #vo2-hr-design [data-status="missing"] .vo2-pointer { display:none; }
+  #vo2-hr-design .vo2-product [hidden] { display:none!important; }
+  @media(max-width:600px) { #vo2-hr-design .vo2-stage { flex-direction:column; gap:30px; min-height:1100px; } #vo2-hr-design .vo2-phone { width:310px; } }
+  @media(prefers-reduced-motion:no-preference) { #vo2-hr-design .vo2-pointer { transition:left .25s ease; } }
+</style>
+<script>
+(() => {
+  const root = document.getElementById('vo2-hr-design');
+  const first = root.querySelector('.vo2-stage');
+  const alternate = first.cloneNode(true);
+  alternate.dataset.layout = 'heart';
+  alternate.querySelector('.vo2-design-label').textContent = 'Heart rate first';
+  root.querySelector('[data-variant="Heart rate first"]').append(alternate);
+  const stages = [first, alternate];
+  const state = { phase:'hard', reading:'in', maxHR:180, cues:true, paused:false };
+  const phaseInput = root.querySelector('#vo2-phase');
+  const readingInput = root.querySelector('#vo2-reading');
+  function restore(saved) {
+    const s = saved?.modelContent;
+    if (!s) return;
+    if (['hard','recovery'].includes(s.phase)) state.phase=s.phase;
+    if (['in','low','high','transition','missing'].includes(s.reading)) state.reading=s.reading;
+    if (Number.isFinite(s.maxHR) && s.maxHR>=100 && s.maxHR<=230) state.maxHR=s.maxHR;
+    if (typeof s.cues==='boolean') state.cues=s.cues;
+  }
+  restore(window.openai?.widgetState);
+  function save() { window.openai?.setWidgetState?.({modelContent:{phase:state.phase,reading:state.reading,maxHR:state.maxHR,cues:state.cues},privateContent:null})?.catch(()=>{}); }
+  function render() {
+    phaseInput.value=state.phase; readingInput.value=state.reading;
+    const hard=state.phase==='hard';
+    const lo=Math.round(state.maxHR*(hard?.85:.60)), hi=Math.round(state.maxHR*(hard?.95:.70));
+    let bpm=Math.round(state.maxHR*(hard?.91:.65));
+    let status='✓ In target', cue=hard?'Hold this effort.':'Keep moving easily.';
+    if(state.reading==='low'){bpm=lo-8;status='↓ Below target';cue=hard?'Build effort gradually.':'Keep recovery easy.';}
+    if(state.reading==='high'){bpm=hi+7;status='↑ Above target';cue=hard?'Ease your effort.':'Ease back for recovery.';}
+    if(state.reading==='transition'){bpm=Math.round(state.maxHR*(hard?.78:.86));status=hard?'↗ Building':'↘ Settling';cue=hard?'Build gradually. Let heart rate rise.':'Easy movement. Let heart rate fall.';}
+    if(state.reading==='missing'){status='— No reading';cue='Waiting for a fresh Watch reading.';}
+    if(state.paused){status='Ⅱ Paused';cue='Resume to continue heart-rate guidance.';}
+    stages.forEach(stage=>{
+      const set=(sel,value)=>stage.querySelectorAll(sel).forEach(e=>e.textContent=value);
+      stage.dataset.phase=state.phase;stage.dataset.status=state.paused?'paused':state.reading;
+      set('.vo2-phase-name',hard?'Hard':'Recover');set('.vo2-time',state.reading==='transition'?(hard?'3:45':'2:45'):(hard?'2:18':'1:42'));
+      set('.vo2-time-label',state.paused?'workout paused':`remaining in ${hard?'hard':'recovery'} interval`);
+      set('.vo2-bpm',state.reading==='missing'?'—':bpm);set('.vo2-target',`${lo}–${hi}`);set('.vo2-status',status);
+      set('.vo2-percent',state.reading==='missing'?'':`${Math.round(bpm/state.maxHR*100)}% max`);
+      set('.vo2-coach',cue);set('.vo2-next-text',hard?'Recover · 3:00':'Hard · round 3');
+      set('.vo2-source',state.reading==='missing'?'Apple Watch · Signal unavailable':state.paused?'Apple Watch · Workout paused':'Apple Watch · Live');
+      set('.vo2-pause',state.paused?'Resume':'Pause');
+      set('.vo2-hard-target',`${Math.round(state.maxHR*.85)}–${Math.round(state.maxHR*.95)} BPM`);
+      set('.vo2-recovery-target',`${Math.round(state.maxHR*.6)}–${Math.round(state.maxHR*.7)} BPM`);
+      stage.querySelector('.vo2-coach').hidden=!state.cues;
+      stage.querySelector('.vo2-max-input').value=state.maxHR;
+      stage.querySelector('.vo2-cue-toggle').checked=state.cues;
+      const position=Math.max(3,Math.min(97,(bpm-(lo-(hi-lo)))/(3*(hi-lo))*100));
+      stage.querySelector('.vo2-pointer').style.left=position+'%';
+      stage.querySelector('.vo2-meter').setAttribute('aria-label',state.reading==='missing'?'No fresh heart-rate reading':`${bpm} BPM; target ${lo} to ${hi} BPM`);
+      stage.querySelectorAll('.vo2-time-track > span').forEach(e=>e.style.width=(state.reading==='transition'?6.25:43)+'%');
+    });
+  }
+  phaseInput.addEventListener('change',()=>{state.phase=phaseInput.value;state.paused=false;render();save();});
+  readingInput.addEventListener('change',()=>{state.reading=readingInput.value;render();save();});
+  root.addEventListener('click',event=>{
+    const button=event.target.closest('button');if(!button)return;
+    const stage=button.closest('.vo2-stage');if(!stage)return;
+    if(button.classList.contains('vo2-config'))stage.querySelector('.vo2-settings').hidden=false;
+    if(button.classList.contains('vo2-done')){const input=stage.querySelector('.vo2-max-input');const value=Number(input.value);if(value>=100&&value<=230){input.setCustomValidity('');state.maxHR=Math.round(value);stage.querySelector('.vo2-settings').hidden=true;render();save();}else{input.setCustomValidity('Enter a value from 100 to 230 BPM.');input.reportValidity();}}
+    if(button.classList.contains('vo2-watch-controls'))stage.querySelector('.vo2-watch-panel').hidden=false;
+    if(button.classList.contains('vo2-watch-back'))stage.querySelector('.vo2-watch-panel').hidden=true;
+    if(button.classList.contains('vo2-pause')){state.paused=!state.paused;render();}
+    if(button.classList.contains('vo2-skip')){state.phase=state.phase==='hard'?'recovery':'hard';state.reading='transition';state.paused=false;render();save();}
+  });
+  root.addEventListener('change',event=>{
+    if(event.target.classList.contains('vo2-max-input')){const v=Number(event.target.value);if(v>=100&&v<=230){event.target.setCustomValidity('');state.maxHR=Math.round(v);render();save();}else{event.target.setCustomValidity('Enter a value from 100 to 230 BPM.');event.target.reportValidity();}}
+    if(event.target.classList.contains('vo2-cue-toggle')){state.cues=event.target.checked;render();save();}
+  });
+  window.addEventListener('openai:set_globals',event=>{if(event.detail?.globals?.widgetState){restore(event.detail.globals.widgetState);render();}});
+  render();
+  if(globalThis.Tweak){const tweak=new Tweak({container:root,onChange:render});tweak.addSlider(state,'maxHR',{label:'Example max heart rate',min:100,max:230,step:1,unit:'BPM'});tweak.addToggle(state,'cues',{label:'Coaching line'});}
+})();
+</script>
