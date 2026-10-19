@@ -28,6 +28,7 @@ final class WatchAppModel {
     @ObservationIgnored private var sender: Task<Void, Never>?
     @ObservationIgnored private var queuedState: WorkoutSessionState?
     @ObservationIgnored private var lastStateSendAt = Date.distantPast
+    @ObservationIgnored private var lastTraceSendAt = Date.distantPast
     @ObservationIgnored private var revision = 0
     @ObservationIgnored private var commandGate = WorkoutCommandGate()
     @ObservationIgnored private var lastCheckpointAt = Date.distantPast
@@ -71,6 +72,9 @@ final class WatchAppModel {
         }
         healthSession.onMessage = { [weak self] message in self?.receive(message) }
         healthSession.onFailure = { [weak self] in self?.runtime?.pause() }
+        #if DEBUG
+        configureHeartSyncFixture()
+        #endif
     }
 
     func start(_ profile: WorkoutProfile) {
@@ -98,6 +102,7 @@ final class WatchAppModel {
         }
         coach = HeartRateCoach()
         revision = 0
+        lastTraceSendAt = .distantPast
         commandGate = WorkoutCommandGate()
         heartRate.presentation = .init()
         let runtime = makeRuntime(profile: profile, id: id)
@@ -114,7 +119,13 @@ final class WatchAppModel {
     private func makeRuntime(profile: WorkoutProfile, id: UUID, timeline: WorkoutTimeline? = nil) -> WorkoutRuntime {
         let runtime = WorkoutRuntime(profile: profile, id: id, timeline: timeline) { [weak self] event in
             guard let self else { return }
-            self.cues.handle(event, profile: profile)
+            if case .halfway(let phase) = event,
+               let guidanceCue = HeartRateHalfwayCue.resolve(presentation: self.coach.presentation,
+                    phase: phase.kind, guidance: profile.heartRateGuidance, at: Date()) {
+                self.cues.handleHalfwayHeartRate(guidanceCue, profile: profile)
+            } else {
+                self.cues.handle(event, profile: profile)
+            }
             if case .finished = event { self.storeFinished() }
         }
         runtime.changeHandler = { [weak self] runtime in
@@ -139,6 +150,7 @@ final class WatchAppModel {
 
     private func refreshHeartRate(sample: HeartRateSample? = nil) {
         guard let runtime, let startedAt = runtime.startedAt else { return }
+        if let sample { runtime.recordHeartRate(sample) }
         let cue = coach.update(sample: sample, snapshot: runtime.snapshot, running: runtime.status == .running,
             guidance: runtime.profile.heartRateGuidance, sessionStartedAt: startedAt, now: Date())
         heartRate.presentation = coach.presentation
@@ -164,13 +176,13 @@ final class WatchAppModel {
         }
     }
 
-    private func makeState() -> WorkoutSessionState? {
+    private func makeState(includeTrace: Bool = false) -> WorkoutSessionState? {
         revision += 1
-        return runtime?.sessionState(revision: revision, heartRate: heartRate.presentation)
+        return runtime?.sessionState(revision: revision, heartRate: heartRate.presentation, includeTrace: includeTrace)
     }
 
     private func publish() {
-        guard !isFinishing, let state = makeState() else { return }
+        guard !isFinishing, let state = makeState(includeTrace: Date().timeIntervalSince(lastTraceSendAt) >= 10) else { return }
         queuedState = state
         guard sender == nil else { return }
         sender = Task { [weak self] in
@@ -185,7 +197,10 @@ final class WatchAppModel {
                 guard !Task.isCancelled, !self.isFinishing, let state = self.queuedState else { break }
                 self.queuedState = nil
                 self.lastStateSendAt = Date()
-                do { try await self.healthSession.send(WorkoutSessionMessage(state: state)) }
+                do {
+                    try await self.healthSession.send(WorkoutSessionMessage(state: state))
+                    if state.heartRateTrace != nil { self.lastTraceSendAt = Date() }
+                }
                 catch { break }
             }
             self.sender = nil
@@ -207,7 +222,7 @@ final class WatchAppModel {
     }
 
     private func checkpoint(force: Bool) {
-        guard !isFinishing, force || Date().timeIntervalSince(lastCheckpointAt) >= 10, let state = makeState() else { return }
+        guard !isFinishing, force || Date().timeIntervalSince(lastCheckpointAt) >= 10, let state = makeState(includeTrace: true) else { return }
         lastCheckpointAt = Date()
         try? Persistence.save(state, fileName: "watch-active-session.json", protection: .completeFileProtectionUntilFirstUserAuthentication)
     }
@@ -235,6 +250,42 @@ final class WatchAppModel {
         }
     }
 
+    #if DEBUG
+    private func configureHeartSyncFixture() {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard let index = arguments.firstIndex(of: "-heartSyncFixture"), arguments.indices.contains(index + 1) else { return }
+        let fixture = arguments[index + 1]
+        let now = Date()
+        var profile = WorkoutProfile.heartSyncCheck
+        profile.heartRateGuidance = .init(maximumBPM: 180)
+        let preview = WorkoutRuntime(profile: profile)
+        let elapsed = fixture == "recovery" ? 200.0 : 135.0
+        let start = now.addingTimeInterval(-elapsed)
+        preview.start(at: start)
+        for second in stride(from: 0.0, through: elapsed - 2, by: 3) {
+            let date = start.addingTimeInterval(second)
+            let bpm = second < 30 ? 110 : second < 150 ? 155 + 10 * sin(second / 25) : 120
+            preview.recordHeartRate(.init(bpm: bpm, date: date), at: date)
+        }
+        preview.update(at: now)
+        self.runtime = preview
+        heartRate.isPreviewData = true
+        heartbeat = Task { [weak self] in
+            while !Task.isCancelled {
+                guard let self else { return }
+                let date = Date()
+                let sample = HeartRateSample(bpm: fixture == "recovery" ? 119 : 164,
+                    date: fixture == "missing" ? date.addingTimeInterval(-20) : date)
+                preview.recordHeartRate(sample, at: date)
+                _ = self.coach.update(sample: sample, snapshot: preview.snapshot, running: true,
+                    guidance: profile.heartRateGuidance, sessionStartedAt: start, now: date)
+                self.heartRate.presentation = self.coach.presentation
+                try? await Task.sleep(for: .seconds(1))
+            }
+        }
+    }
+    #endif
+
     func closeRuntime() { guard !isFinishing else { return }; runtime = nil }
 
     private func storeFinished() {
@@ -246,7 +297,7 @@ final class WatchAppModel {
             try? Persistence.save(history, fileName: "watch-history.json", protection: .completeFileProtectionUntilFirstUserAuthentication)
             connectivity.send(record: record)
         }
-        let state = makeState()
+        let state = makeState(includeTrace: true)
         if let state { try? Persistence.save(state, fileName: "watch-active-session.json") }
         Task {
             if let state { try? await healthSession.send(WorkoutSessionMessage(state: state)) }

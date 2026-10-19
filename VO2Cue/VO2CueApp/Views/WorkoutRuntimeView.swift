@@ -53,6 +53,7 @@ private struct ActiveWorkoutView: View {
                 if runtime.isMirrored || runtime.profile.heartRateGuidance?.enabled == true {
                     HeartRateCard(feed: model.workoutMirror.heartRate, runtime: runtime)
                 }
+                RuntimeIntervalGraph(runtime: runtime)
                 if runtime.isMirrored {
                     MirrorControlStatus(feed: model.workoutMirror.heartRate)
                 }
@@ -112,11 +113,6 @@ private struct WorkoutTimerReadout: View {
                 .contentTransition(.numericText(countsDown: true))
                 .accessibilityLabel("Time remaining")
                 .accessibilityValue(snapshot.remainingSeconds.timerText)
-
-            ProgressView(value: snapshot.progress)
-                .tint(.primary)
-                .accessibilityLabel("Phase progress")
-                .accessibilityValue(Text(snapshot.progress, format: .percent.precision(.fractionLength(0))))
 
             Text("Total remaining \(snapshot.totalRemainingSeconds.timerText)")
                 .font(.subheadline)
@@ -227,6 +223,7 @@ private struct WorkoutCompletionView: View {
                     .accessibilityIdentifier("completedActualDuration")
                 Text(runtime.profile.name).foregroundStyle(.secondary)
                 if let record = runtime.finishedRecord() {
+                    RuntimeIntervalGraph(runtime: runtime)
                     WorkoutSummaryDetails(record: record)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     WorkoutReflectionView(recordID: record.id)

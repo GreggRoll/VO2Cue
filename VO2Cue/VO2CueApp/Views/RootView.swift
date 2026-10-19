@@ -44,6 +44,13 @@ struct RootView: View {
                 }
             }
         }
+        .sheet(item: $model.heartRateSetupProfile) { profile in
+            HeartRateOnboardingView {
+                model.heartRateSetupProfile = nil
+                model.startWithWatch(profile, skipSetup: true)
+            }
+            .environment(model)
+        }
         .fullScreenCover(item: $model.activeRuntime, onDismiss: workoutDismissed) { runtime in
             WorkoutRuntimeView(runtime: runtime)
                 .environment(model)

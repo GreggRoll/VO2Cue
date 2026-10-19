@@ -20,6 +20,8 @@ final class VO2CueUITests: XCTestCase {
             captureScreen(title.replacingOccurrences(of: "\n", with: " "))
             app.buttons["onboardingContinue"].tap()
         }
+        XCTAssertTrue(app.staticTexts["heartRateOnboardingTitle"].waitForExistence(timeout: 3))
+        app.buttons["skipHeartRateOnboarding"].tap()
         XCTAssertTrue(app.staticTexts["paywallTitle"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["plan_lifetime"].exists)
         XCTAssertTrue(app.buttons["plan_monthly"].exists)
@@ -95,7 +97,9 @@ final class VO2CueUITests: XCTestCase {
         let toggle = app.switches["heartRateGuidanceToggle"]
         for _ in 0..<7 where !toggle.isHittable { app.swipeUp() }
         XCTAssertTrue(toggle.exists)
-        toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        if toggle.value as? String != "1" {
+            toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        }
         XCTAssertEqual(toggle.value as? String, "1")
         let hardTarget = app.staticTexts["Hard, 153–171 BPM"]
         scrollTo(hardTarget)
@@ -105,6 +109,46 @@ final class VO2CueUITests: XCTestCase {
         XCTAssertTrue(recoveryTarget.exists)
         captureScreen("Heart Sync Profile Targets")
         app.navigationBars["Workout profile"].buttons["Cancel"].tap()
+    }
+
+    func testOnboardingCalculatesMaximumAndSavesTargets() {
+        app.terminate()
+        app.launchArguments = ["-healthSavingEnabled", "NO", "-resetOnboarding", "-hasAlreadyReviewed", "YES", "-purchaseFixture", "paid"]
+        app.launch()
+        for _ in 0..<4 { app.buttons["onboardingContinue"].tap() }
+        XCTAssertTrue(app.staticTexts["heartRateOnboardingTitle"].waitForExistence(timeout: 3))
+        let age = app.textFields["heartRateAge"]
+        scrollTo(age)
+        age.tap()
+        age.typeText("40")
+        app.buttons["heartRateKeyboardDone"].tap()
+        let estimate = app.buttons["useHeartRateEstimate"]
+        scrollTo(estimate)
+        estimate.tap()
+        captureScreen("Heart Rate Age Estimate")
+        app.buttons["saveHeartRateOnboarding"].tap()
+        XCTAssertTrue(app.tabBars.buttons["Workouts"].waitForExistence(timeout: 3))
+        app.tabBars.buttons["Settings"].tap()
+        let targets = app.buttons["Heart-rate targets"]
+        scrollTo(targets)
+        targets.tap()
+        XCTAssertEqual(app.textFields["maximumHeartRate"].value as? String, "192")
+        XCTAssertTrue(app.staticTexts["Confirmed maximum, 192 BPM · Estimated"].exists)
+    }
+
+    func testWorkoutGraphShowsCyclesTargetsAndRecordedHeartRate() {
+        app.terminate()
+        app.launchArguments += ["-heartSyncFixture", "work"]
+        app.launch()
+        XCTAssertTrue(app.otherElements["heartRateRangeMeter"].waitForExistence(timeout: 5))
+        let graph = app.otherElements.matching(identifier: "workoutHeartRateGraph").firstMatch
+        scrollTo(graph)
+        XCTAssertTrue(graph.exists)
+        XCTAssertTrue(app.staticTexts["Workout timeline"].exists)
+        // Charts exposes both a summary and plot node. Move the full plot above the controls.
+        app.swipeUp()
+        XCTAssertTrue(app.staticTexts["Dashed lines: target range · Tap the graph to inspect BPM."].isHittable)
+        captureScreen("Heart Rate Workout Graph")
     }
 
     func testHeartSyncAtLargestAccessibilityTextSize() {

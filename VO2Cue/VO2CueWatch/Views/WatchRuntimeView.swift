@@ -4,15 +4,23 @@ struct WatchRuntimeView: View {
     @Environment(WatchAppModel.self) private var model
     @Bindable var runtime: WorkoutRuntime
     @State private var confirmEnd = false
+    @State private var page = 0
 
     var body: some View {
         Group {
             if runtime.status == .completed || runtime.status == .ended {
                 completion
             } else {
-                TabView {
-                    timerPage
-                    controlsPage
+                TabView(selection: $page) {
+                    timerPage.tag(0)
+                    controlsPage.tag(1)
+                    ScrollView {
+                        VStack(spacing: 8) {
+                            Button("Timer", systemImage: "timer") { page = 0 }
+                                .font(.caption2).buttonStyle(.plain)
+                            RuntimeIntervalGraph(runtime: runtime)
+                        }.padding(.horizontal, 4)
+                    }.tag(2)
                 }
                 .tabViewStyle(.verticalPage)
             }
@@ -25,9 +33,9 @@ struct WatchRuntimeView: View {
 
     private var timerPage: some View {
         ScrollView {
-        VStack(spacing: 5) {
-            Label(runtime.snapshot.phase.displayTitle, systemImage: runtime.snapshot.phase.kind.systemImage)
-                .font(.headline)
+        VStack(spacing: 2) {
+            Label(model.heartRate.isPreviewData ? "Debug · \(runtime.snapshot.phase.displayTitle)" : runtime.snapshot.phase.displayTitle, systemImage: runtime.snapshot.phase.kind.systemImage)
+                .font(.subheadline.weight(.semibold))
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             if let round = runtime.snapshot.phase.roundDescription {
@@ -36,15 +44,18 @@ struct WatchRuntimeView: View {
                     .foregroundStyle(.secondary)
             }
             Text(runtime.snapshot.remainingSeconds.timerText)
-                .font(.system(size: 38, weight: .bold, design: .rounded))
+                .font(.system(size: 36, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .minimumScaleFactor(0.7)
                 .contentTransition(.numericText(countsDown: true))
                 .accessibilityLabel("Time remaining")
                 .accessibilityValue(runtime.snapshot.remainingSeconds.timerText)
-            ProgressView(value: runtime.snapshot.progress)
-                .tint(.primary)
-            WatchHeartRateReadout(feed: model.heartRate, runtime: runtime)
+            Button { page = 2 } label: {
+                WatchHeartRateReadout(feed: model.heartRate, runtime: runtime)
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint("Show workout timeline")
+            .accessibilityIdentifier("watchHeartRateTimeline")
         }
         }
         .padding(.horizontal, 4)
@@ -89,6 +100,7 @@ struct WatchRuntimeView: View {
                             .accessibilityElement(children: .combine)
                     }
                 }
+                RuntimeIntervalGraph(runtime: runtime)
                 Text("Skipped phases: \(runtime.skippedPhaseIDs.count)").font(.caption2)
                 Text("Pauses and skipped time excluded.").font(.caption2).foregroundStyle(.secondary)
                 if let error = model.healthSession.lastErrorMessage {

@@ -39,6 +39,14 @@ final class CueCoordinator {
         }
     }
 
+    func handleHalfwayHeartRate(_ cue: HeartRateHalfwayCue, profile: WorkoutProfile) {
+        lastIntervalCue = Date()
+        speechSynthesizer.stopSpeaking(at: .immediate)
+        playHaptic(.halfway, enabled: profile.cues.hapticsEnabled)
+        playTone(frequency: 780, duration: 0.12, enabled: profile.cues.tonesEnabled)
+        speak(cue.rawValue, enabled: profile.cues.voiceEnabled)
+    }
+
     func handleHeartRate(_ status: HeartRateStatus, profile: WorkoutProfile) {
         guard profile.heartRateGuidance?.cuesEnabled == true,
               Date().timeIntervalSince(lastIntervalCue) > 5,

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct WelcomeView: View {
     @Environment(PurchaseStore.self) private var purchases
+    @State private var showingHeartRateSetup = false
     @State private var page: Page = .longGame
     let onComplete: () -> Void
 
@@ -39,13 +40,21 @@ struct WelcomeView: View {
     }
 
     var body: some View {
+        if showingHeartRateSetup {
+            HeartRateOnboardingView(isIntroduction: true, onComplete: onComplete)
+        } else {
+            introduction
+        }
+    }
+
+    private var introduction: some View {
         VStack(spacing: 0) {
             HStack {
                 Text("VO2Cue").font(.title3.bold())
                 Spacer()
-                Text("\(page.rawValue + 1) / \(Page.allCases.count)")
+                Text("\(page.rawValue + 1) / \(Page.allCases.count + 1)")
                     .font(.subheadline.monospacedDigit()).foregroundStyle(.secondary)
-                    .accessibilityLabel("Introduction, step \(page.rawValue + 1) of \(Page.allCases.count)")
+                    .accessibilityLabel("Introduction, step \(page.rawValue + 1) of \(Page.allCases.count + 1)")
             }
             .padding(.horizontal, 24).padding(.top, 16)
             ScrollView {
@@ -75,7 +84,7 @@ struct WelcomeView: View {
                 .accessibilityHidden(true)
                 OnboardingPrimaryButton(title: primaryTitle) {
                     if let next = Page(rawValue: page.rawValue + 1) { page = next }
-                    else { onComplete() }
+                    else { showingHeartRateSetup = true }
                 }
                 .accessibilityIdentifier("onboardingContinue")
                 if page != .longGame {
@@ -93,7 +102,7 @@ struct WelcomeView: View {
     }
 
     private var primaryTitle: String {
-        page != .yourWay ? "Continue" : purchases.isUnlocked ? "Start training" : "Choose my plan"
+        "Continue"
     }
 
     private var illustration: some View {

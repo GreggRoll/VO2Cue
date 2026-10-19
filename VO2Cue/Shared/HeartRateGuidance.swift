@@ -17,6 +17,10 @@ enum MaximumHeartRateSource: String, Codable, CaseIterable, Identifiable, Sendab
 struct HeartRatePreferences: Codable, Equatable, Sendable {
     var maximumBPM: Int?
     var source: MaximumHeartRateSource = .entered
+    static func estimatedMaximum(age: Int) -> Int? {
+        guard (13...100).contains(age) else { return nil }
+        return Int((220 - 0.7 * Double(age)).rounded())
+    }
     var confirmedMaximum: Int? { maximumBPM.flatMap { (100...230).contains($0) ? $0 : nil } }
 }
 
@@ -49,6 +53,11 @@ extension WorkoutProfile {
 
     func resolvingHeartRate(_ preferences: HeartRatePreferences) -> WorkoutProfile {
         var result = self
+        // Legacy profiles automatically gain Watch guidance after personal setup.
+        // An explicitly disabled profile remains disabled.
+        if result.heartRateGuidance == nil, preferences.confirmedMaximum != nil {
+            result.heartRateGuidance = .init()
+        }
         result.heartRateGuidance?.maximumBPM = preferences.confirmedMaximum
         return result
     }

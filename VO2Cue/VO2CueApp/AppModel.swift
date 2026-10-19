@@ -21,6 +21,7 @@ final class AppModel {
     let trainingProgress = TrainingProgressStore()
     let reminders = WorkoutReminderStore()
     let workoutMirror = PhoneWorkoutMirror()
+    var heartRateSetupProfile: WorkoutProfile?
     var heartPreferences: HeartRatePreferences {
         didSet {
             try? Persistence.save(heartPreferences, fileName: "heart-preferences.json")
@@ -128,8 +129,15 @@ final class AppModel {
         startPhoneTimer(profile)
     }
 
-    func startWithWatch(_ profile: WorkoutProfile) {
+    func startWithWatch(_ profile: WorkoutProfile, skipSetup: Bool = false) {
         guard purchases.isUnlocked, !isPreparingWorkout, activeRuntime == nil else { return }
+        if !skipSetup, heartPreferences.confirmedMaximum == nil,
+           profile.heartRateGuidance?.enabled != false,
+           (profile.heartRateGuidance?.hardOverride?.isValid != true || profile.heartRateGuidance?.recoveryOverride?.isValid != true),
+           !UserDefaults.standard.bool(forKey: "hasOfferedHeartRateSetup") {
+            heartRateSetupProfile = profile
+            return
+        }
         isPreparingWorkout = true
         workoutErrorMessage = nil
         let id = UUID()
@@ -386,13 +394,20 @@ final class AppModel {
         let watch = WorkoutRuntime(profile: profile)
         let elapsed: Double = fixture == "recovery" ? 1_290 : 1_122
         watch.start(at: now.addingTimeInterval(-elapsed))
+        for second in stride(from: 0.0, through: elapsed - 2, by: 5) {
+            let date = now.addingTimeInterval(second - elapsed)
+            watch.update(at: date, emitCues: false)
+            let kind = watch.snapshot.phase.kind
+            let bpm = kind == .work ? 155 + 12 * sin(second / 40) : kind == .recovery ? 120 + 12 * cos(second / 25) : 105 + 10 * sin(second / 35)
+            watch.recordHeartRate(.init(bpm: bpm, date: date), at: date)
+        }
         watch.update(at: now)
         if fixture == "paused" { watch.pause(at: now) }
         let kind = watch.snapshot.phase.kind
         let sampleDate = fixture == "missing" ? now.addingTimeInterval(-20) : now
-        let reading = HeartRatePresentation(sample: .init(bpm: fixture == "recovery" ? 119 : 164, date: sampleDate), trendBPM: 164,
+        let reading = HeartRatePresentation(sample: .init(bpm: fixture == "recovery" ? 119 : 164, date: sampleDate), trendBPM: fixture == "recovery" ? 119 : 164,
             target: profile.heartRateGuidance?.target(for: kind), status: fixture == "paused" ? .paused : .inTarget)
-        guard let state = watch.sessionState(revision: 1, heartRate: reading, at: now) else { return }
+        guard let state = watch.sessionState(revision: 1, heartRate: reading, at: now, includeTrace: true) else { return }
         let runtime = WorkoutRuntime(profile: profile, id: state.sessionID, timeline: state.timeline, isMirrored: true)
         _ = runtime.applyRemoteState(state, at: now)
         activeRuntime = runtime
@@ -414,6 +429,7 @@ final class AppModel {
                 if fixture != "missing" {
                     reading.sample = HeartRateSample(bpm: fixture == "recovery" ? 119 : 164, date: currentDate)
                 }
+                if let sample = reading.sample { watch.recordHeartRate(sample, at: currentDate) }
                 revision += 1
                 if let next = watch.sessionState(revision: revision, heartRate: reading, at: currentDate) {
                     _ = runtime.applyRemoteState(next, at: currentDate)

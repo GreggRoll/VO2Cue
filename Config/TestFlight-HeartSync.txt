@@ -1,19 +1,19 @@
-HEART SYNC PREVIEW — version 1.2, build 6
+HEART SYNC PREVIEW — version 1.2, build 7
 
-Install this build on BOTH iPhone and Apple Watch. This is a dedicated testing preview.
+Install build 7 on BOTH iPhone and Apple Watch.
 
-QUICK START
-Open Settings > Heart-rate targets. Enter and save your own confirmed maximum BPM and its source, or configure custom BPM ranges in a workout profile. Then open Settings > Heart Sync Preview and add the 6½-minute Heart Sync Check workout. Tap Start with Apple Watch and allow workout/heart-rate permissions on Watch. You can also start the profile directly on Watch.
+NEW IN THIS BUILD
+• A moving heart-rate range meter on both devices shows below, in, or above the current interval target.
+• Onboarding asks for maximum heart rate. Enter it directly or calculate an editable estimate with 220 − (0.7 × age). Only the confirmed maximum and source are saved; age is not stored. Existing users can use Settings > Heart-rate targets, or set up at their next Watch start.
+• After setting a maximum, Watch workouts automatically use 85–95% for hard intervals and 60–70% for recovery. Custom profile ranges and explicitly disabled guidance are respected. Changes apply to the next workout.
+• A workout timeline shows hard/recovery cycles, dashed lower/upper target lines, and measured BPM. Scroll down on iPhone; swipe to the graph page on Watch. Tap the iPhone graph to inspect readings. The graph is also saved in workout history.
+• Hard/recovery halfway cues now say Heart rate up, Heart rate down, or Heart rate good when fresh readings and targets are available. Below-target recovery says good to keep recovery easy. Missing readings, disabled HR cues, warmup and cooldown keep normal Halfway cues. Spoken cues and halfway cues must be enabled in the profile.
 
 WHAT TO TEST
-• Compare phase, round, countdown, raw BPM and phase target on both screens.
-• Pause, resume, skip and end from each device. Phone controls wait for Watch confirmation.
-• Try a hard/recovery transition. Building suppresses low-work coaching for 90 seconds; Settling suppresses high-recovery cues for 60 seconds. Below-target recovery should say Keep recovery easy. These are product parameters for evaluation.
-• Status uses a recent 10-second trend, with 3 BPM hysteresis. Cues require sustained fresh readings, have a 45-second cooldown, and obey your heart-rate cue and spoken-cue settings.
-• Lock/background iPhone and lower your wrist. Enable VO2Cue Live Activities for locked-phone testing. The Live Activity shows the interval timer; reopen the app to compare current HR/state.
-• Move out of range and return. Watch should keep running; phone controls disable while connection is delayed and resynchronize on return.
-• Create a sensor gap. After 15 seconds without a fresh sample, BPM/comparison must disappear while timing continues. Also test swimming/wrist-motion gaps.
-• Finish and end early. Check one history entry and one Apple Health workout, with paused/skipped time excluded.
-• Open Sync diagnostics during the workout to see reading age, update age and estimated delivery delay. Delivery uses device clocks and does not measure sensor latency.
+1. Estimate from age 40: confirm 192 BPM, then edit or save it. Check both phase targets on the next Watch workout.
+2. Compare the range meter, raw BPM, status and graph on both devices. Status/cues use a recent ten-second trend; the meter follows raw BPM.
+3. Listen at each hard/recovery halfway point. Test below, within and above target; stale readings must never announce good.
+4. Pause/resume and skip. Pauses must not stretch the graph; skipped time and sensor gaps remain blank. Finish/end early, then reopen the saved graph in Progress. Check one history entry and one Apple Health workout.
+5. Lock/background iPhone, lower your wrist, disconnect/reconnect, and test sensor/swimming gaps. Watch keeps the workout running; graph history backfills periodically on reconnect. Phone controls await Watch confirmation. Sync diagnostics show reading/update age and estimated delivery delay.
 
-Existing phone-only timers and saved profiles/history remain available. No fake HR is used in TestFlight. Time-in-zone scores and post-workout HR charts are not included in this preview. Physical-device sensor, background and reconnection behavior is the focus of testing.
+Graphs are reduced-resolution, bounded to 480 points, and stay on the paired devices. No simulated heart rate is used in TestFlight. Actual sensor cadence and radio/background behavior require physical-device testing. Live Activities continue to show the interval timer; open the app for live HR and the graph.

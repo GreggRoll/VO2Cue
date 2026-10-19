@@ -223,6 +223,8 @@ struct WorkoutRecord: Codable, Equatable, Identifiable, Sendable {
     // Absent on legacy records, whose duration may include skipped intervals.
     let actualActiveSeconds: Int?
     let phaseResults: [WorkoutPhaseResult]?
+    let heartRateTrace: WorkoutHeartRateTrace?
+    let heartRateGuidance: HeartRateGuidance?
 
     init(
         id: UUID = UUID(),
@@ -234,7 +236,9 @@ struct WorkoutRecord: Codable, Equatable, Identifiable, Sendable {
         activeSeconds: Int,
         completed: Bool,
         actualActiveSeconds: Int? = nil,
-        phaseResults: [WorkoutPhaseResult]? = nil
+        phaseResults: [WorkoutPhaseResult]? = nil,
+        heartRateTrace: WorkoutHeartRateTrace? = nil,
+        heartRateGuidance: HeartRateGuidance? = nil
     ) {
         self.id = id
         self.profileID = profileID
@@ -246,6 +250,8 @@ struct WorkoutRecord: Codable, Equatable, Identifiable, Sendable {
         self.completed = completed
         self.actualActiveSeconds = actualActiveSeconds
         self.phaseResults = phaseResults
+        self.heartRateTrace = heartRateTrace
+        self.heartRateGuidance = heartRateGuidance
     }
 
     var displayedSeconds: Int { actualActiveSeconds ?? activeSeconds }

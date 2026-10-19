@@ -30,6 +30,10 @@ final class WorkoutRuntime: Identifiable {
     private(set) var endedAt: Date?
     private(set) var phaseActiveSeconds: [TimeInterval]
     private(set) var skippedPhaseIDs: Set<UUID> = []
+    private(set) var heartRateTrace = WorkoutHeartRateTrace()
+    @ObservationIgnored private var heartRateNotBefore = Date.distantPast
+    @ObservationIgnored private var lastHeartRateDate = Date.distantPast
+    @ObservationIgnored private var breakHeartRateLine = false
 
     @ObservationIgnored private var accumulatedElapsed: TimeInterval = 0
     @ObservationIgnored private var resumeAnchor: Date?
@@ -82,7 +86,9 @@ final class WorkoutRuntime: Identifiable {
         return WorkoutRecord(
             id: id, profileID: profile.id, profileName: profile.name, activity: profile.activity,
             startedAt: startedAt, endedAt: endedAt, activeSeconds: actualActiveSeconds,
-            completed: status == .completed, actualActiveSeconds: actualActiveSeconds, phaseResults: phaseResults
+            completed: status == .completed, actualActiveSeconds: actualActiveSeconds, phaseResults: phaseResults,
+            heartRateTrace: heartRateTrace.points.isEmpty ? nil : heartRateTrace,
+            heartRateGuidance: profile.heartRateGuidance
         )
     }
 
@@ -94,6 +100,7 @@ final class WorkoutRuntime: Identifiable {
         guard !isMirrored else { return }
         guard status == .idle else { return }
         startedAt = date
+        heartRateNotBefore = date
         resumeAnchor = date
         status = .running
         eventHandler(.phaseChanged(snapshot.phase))
@@ -117,6 +124,8 @@ final class WorkoutRuntime: Identifiable {
         guard !isMirrored else { return }
         guard status == .paused else { return }
         resumeAnchor = date
+        heartRateNotBefore = date
+        breakHeartRateLine = true
         status = .running
         startTicker()
         changeHandler?(self)
@@ -128,6 +137,8 @@ final class WorkoutRuntime: Identifiable {
         // Settle elapsed time first: a delayed tap may belong to a later phase.
         update(at: date, emitCues: false)
         guard status == .running || status == .paused else { return }
+        heartRateNotBefore = date
+        breakHeartRateLine = true
         skippedPhaseIDs.insert(snapshot.phase.id)
         let nextElapsed = TimeInterval(timeline.phaseEndSeconds(at: snapshot.phaseIndex))
         accumulatedElapsed = nextElapsed
@@ -239,12 +250,27 @@ final class WorkoutRuntime: Identifiable {
         }
     }
 
-    func sessionState(revision: Int, heartRate: HeartRatePresentation, at date: Date = Date()) -> WorkoutSessionState? {
+    func recordHeartRate(_ sample: HeartRateSample, at date: Date = Date()) {
+        guard !isMirrored, status == .running, sample.isFresh(at: date),
+              sample.date >= heartRateNotBefore, sample.date > lastHeartRateDate else { return }
+        update(at: date)
+        guard status == .running else { return }
+        let elapsed = snapshot.elapsedSeconds
+        let seconds = max(0, elapsed - max(0, date.timeIntervalSince(sample.date)))
+        let previous = heartRateTrace.points.last
+        heartRateTrace.append(seconds: seconds, bpm: sample.bpm, breakBefore: breakHeartRateLine)
+        lastHeartRateDate = sample.date
+        if heartRateTrace.points.last != previous { breakHeartRateLine = false }
+    }
+
+    func sessionState(revision: Int, heartRate: HeartRatePresentation, at date: Date = Date(), includeTrace: Bool = false) -> WorkoutSessionState? {
         guard let startedAt else { return nil }
         return WorkoutSessionState(sessionID: id, revision: revision, sentAt: date, profile: profile,
             timeline: timeline, status: status, startedAt: startedAt, endedAt: endedAt,
             elapsed: snapshot.elapsedSeconds, phaseActiveSeconds: phaseActiveSeconds,
-            skippedPhaseIDs: skippedPhaseIDs, heartRate: heartRate)
+            skippedPhaseIDs: skippedPhaseIDs, heartRate: heartRate,
+            heartRatePoint: heartRateTrace.points.last,
+            heartRateTrace: includeTrace ? heartRateTrace : nil)
     }
 
     @discardableResult
@@ -260,6 +286,8 @@ final class WorkoutRuntime: Identifiable {
         accumulatedElapsed = state.elapsed
         phaseActiveSeconds = state.phaseActiveSeconds
         skippedPhaseIDs = state.skippedPhaseIDs
+        if let trace = state.heartRateTrace { heartRateTrace = trace }
+        if let point = state.heartRatePoint { heartRateTrace.merge(point) }
         updateSnapshot(elapsed: state.elapsed, emitCues: false)
         ticker?.cancel()
         if status == .running { startTicker(); update(at: date) }
@@ -273,6 +301,10 @@ final class WorkoutRuntime: Identifiable {
         accumulatedElapsed = state.elapsed
         phaseActiveSeconds = state.phaseActiveSeconds
         skippedPhaseIDs = state.skippedPhaseIDs
+        if let trace = state.heartRateTrace { heartRateTrace = trace }
+        if let point = state.heartRatePoint { heartRateTrace.merge(point) }
+        heartRateNotBefore = date
+        breakHeartRateLine = true
         status = running ? .running : .paused
         resumeAnchor = running ? state.sentAt : nil
         updateSnapshot(elapsed: state.elapsed, emitCues: false)
@@ -284,6 +316,7 @@ final class WorkoutRuntime: Identifiable {
         guard isMirrored else { return }
         endedAt = record?.endedAt ?? date
         status = record?.completed == true ? .completed : .ended
+        if let trace = record?.heartRateTrace { heartRateTrace = trace }
         if let results = record?.phaseResults { phaseActiveSeconds = results.map(\.activeSeconds) }
         ticker?.cancel()
     }

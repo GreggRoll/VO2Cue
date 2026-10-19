@@ -14,9 +14,15 @@ struct WorkoutSessionState: Codable, Equatable, Sendable {
     let phaseActiveSeconds: [TimeInterval]
     let skippedPhaseIDs: Set<UUID>
     let heartRate: HeartRatePresentation
+    var heartRatePoint: HeartRateTracePoint? = nil
+    var heartRateTrace: WorkoutHeartRateTrace? = nil
 
     var isValid: Bool {
-        revision >= 0 && elapsed.isFinite && elapsed >= 0 && elapsed <= Double(timeline.totalDurationSeconds)
+        (heartRateTrace?.isValid ?? true)
+        && (heartRatePoint?.isValid ?? true)
+        && (heartRatePoint.map { $0.seconds <= elapsed } ?? true)
+        && (heartRateTrace?.points.last.map { $0.seconds <= elapsed } ?? true)
+        && revision >= 0 && elapsed.isFinite && elapsed >= 0 && elapsed <= Double(timeline.totalDurationSeconds)
         && !timeline.phases.isEmpty && timeline.phases.count == phaseActiveSeconds.count
         && timeline.phases.allSatisfy { $0.durationSeconds > 0 }
         && timeline.totalDurationSeconds == timeline.phases.reduce(0, { $0 + $1.durationSeconds })

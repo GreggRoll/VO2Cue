@@ -30,7 +30,14 @@ struct WatchHeartRateReadout: View {
                         .lineLimit(2).minimumScaleFactor(0.8)
                 }
                 if let target = value.target {
-                    Text("Target \(target.label) BPM").font(.caption2).foregroundStyle(.secondary)
+                    HeartRateTargetMeter(sample: value.sample, target: target)
+                    HStack(spacing: 3) {
+                        Text("Target \(target.label) BPM")
+                        Image(systemName: "chart.xyaxis.line").accessibilityHidden(true)
+                    }.font(.caption2).foregroundStyle(.secondary)
+                } else if runtime.profile.heartRateGuidance?.enabled != false,
+                          runtime.snapshot.phase.kind == .work || runtime.snapshot.phase.kind == .recovery {
+                    Text("Set maximum on iPhone").font(.caption2).foregroundStyle(.secondary)
                 }
             }
             .accessibilityElement(children: .combine)
@@ -69,6 +76,10 @@ struct HeartRateCard: View {
                         Spacer()
                         Text("Above")
                     }.font(.caption2).foregroundStyle(.secondary)
+                }
+                if runtime.profile.heartRateGuidance == nil || value.status == .unconfigured {
+                    Text("Set your maximum in Settings → Heart-rate targets before your next Watch workout.")
+                        .font(.caption).foregroundStyle(.secondary)
                 }
                 if runtime.profile.heartRateGuidance?.cuesEnabled == true, let coaching = value.status.coaching {
                     Text(coaching).font(.subheadline)
@@ -121,7 +132,14 @@ struct HeartRateCard: View {
     }
 }
 
-private struct HeartRateTargetMeter: View {
+#endif
+
+struct HeartRateTargetMeter: View {
+    #if os(watchOS)
+    private let meterHeight = 13.0
+    #else
+    private let meterHeight = 19.0
+    #endif
     let sample: HeartRateSample?
     let target: HeartRateRange
     var body: some View {
@@ -133,12 +151,17 @@ private struct HeartRateTargetMeter: View {
                 Capsule().fill(.secondary.opacity(0.16)).frame(height: 9)
                 Rectangle().fill(.green.opacity(0.55)).frame(width: width / 3, height: 9).offset(x: width / 3)
                 if let position {
-                    Capsule().fill(.primary).frame(width: 4, height: 19).offset(x: width * position - 2)
+                    Capsule().fill(.primary).frame(width: 4, height: meterHeight).offset(x: width * position - 2)
                 }
-            }.frame(height: 19)
+            }.frame(height: meterHeight)
         }
-        .frame(height: 19)
-        .accessibilityLabel("Target range \(target.lower) to \(target.upper) beats per minute")
+        .frame(height: meterHeight)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Heart-rate range meter")
+        .accessibilityValue(sample.map { sample in
+            let direction = sample.bpm < Double(target.lower) ? "below target" : sample.bpm > Double(target.upper) ? "above target" : "in target"
+            return "\(Int(sample.bpm.rounded())) BPM, \(direction). Target \(target.lower) to \(target.upper) BPM"
+        } ?? "No fresh reading. Target \(target.lower) to \(target.upper) BPM")
+        .accessibilityIdentifier("heartRateRangeMeter")
     }
 }
-#endif

@@ -8,12 +8,8 @@ struct HeartRateSettingsView: View {
 
     var body: some View {
         Form {
+            MaximumHeartRateEditor(maximum: $maximum, source: $source)
             Section {
-                TextField("Maximum heart rate (BPM)", text: $maximum)
-                    .keyboardType(.numberPad).accessibilityIdentifier("maximumHeartRate")
-                Picker("Source", selection: $source) {
-                    ForEach(MaximumHeartRateSource.allCases) { Text($0.title).tag($0) }
-                }
                 Button("Save maximum") {
                     model.heartPreferences = HeartRatePreferences(maximumBPM: Int(maximum), source: source)
                     saved = true
@@ -34,13 +30,14 @@ struct HeartRateSettingsView: View {
             Section {
                 Text("Hard intervals: 85–95% of maximum. Active recovery: 60–70%. These editable training targets follow NTNU CERG’s 4×4 guidance.")
                 Link("Read NTNU’s exercise advice", destination: URL(string: "https://www.ntnu.edu/cerg/advice")!)
-                Text("Enable heart-rate guidance in a workout profile. Targets change with each hard and recovery interval. Warmup and cooldown show BPM without deviation cues.")
+                Text("Watch workouts automatically use your maximum unless guidance is disabled in the profile. Targets change with each hard and recovery interval. Warmup and cooldown show BPM without deviation cues.")
                 Text("Changes apply to the next workout. Your maximum stays on your devices and syncs directly to Apple Watch.")
             } header: { Text("Phase targets") }
             Section {
                 NavigationLink("Heart Sync Preview testing") { HeartSyncTestingView() }
             }
         }
+        .scrollDismissesKeyboard(.interactively)
         .navigationTitle("Heart-rate targets")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
@@ -68,10 +65,10 @@ struct ProfileHeartRateSection: View {
     var body: some View {
         Section {
             Toggle("Heart-rate guidance", isOn: Binding(
-                get: { profile.heartRateGuidance?.enabled == true },
+                get: { profile.heartRateGuidance?.enabled ?? (preferences.confirmedMaximum != nil) },
                 set: { value in var updated = guidance; updated.enabled = value; profile.heartRateGuidance = updated }
             )).accessibilityIdentifier("heartRateGuidanceToggle")
-            if profile.heartRateGuidance?.enabled == true {
+            if profile.heartRateGuidance?.enabled ?? (preferences.confirmedMaximum != nil) {
                 Toggle("Heart-rate cues", isOn: field(\.cuesEnabled))
                 rangeEditor("Hard", phase: .work, keyPath: \.hardOverride)
                 rangeEditor("Recovery", phase: .recovery, keyPath: \.recoveryOverride)
@@ -127,11 +124,11 @@ struct HeartSyncTestingView: View {
                     model.selectedTab = .workouts
                     model.workoutsNavigationPath = [profile.id]
                 }
-                Text("1. Set your maximum or custom BPM ranges, then enable Heart-rate guidance in a workout profile.")
+                Text("1. Set your maximum (enter it or calculate from age), or customize BPM ranges in a workout profile.")
                 Text("2. Tap Start with Apple Watch on iPhone, or start that profile on Watch. Compare phase, round, timer, BPM and target.")
                 Text("3. Pause, resume, skip and end from each device. Phone controls wait for Watch confirmation.")
                 Text("4. Lock the phone, lower your wrist, move out of range and return. Watch should keep running. A stale reading must disappear after 15 seconds.")
-                Text("5. Test a full hard/recovery transition and check Building/Settling. Finish and confirm there is only one Apple Health workout and one history entry.")
+                Text("5. Check the range meter and workout graph on both devices. At each hard/recovery halfway point, listen for Heart rate up, down, or good. Finish and check the saved graph in Progress, with only one Apple Health workout and one history entry.")
                 Text("No simulated heart rate is used in TestFlight. Physical-device testing is needed to evaluate sensor and connection delays, including swimming gaps.")
             }
             Section("Live diagnostics") {
