@@ -16,7 +16,7 @@ Verification includes all relative page/image/stylesheet links, desktop and mobi
 
 ## Search and accessibility maintenance
 
-The homepage includes `MobileApplication`, `WebPage`, `WebSite`, and developer JSON-LD, visible product answers, Open Graph/Twitter metadata, and a static sitemap. The visible US App Store price and rating were checked against Apple's public listing and lookup API on October 19, 2026. Update the visible facts, their check dates, matching JSON-LD, and sitemap modification date together when they change. Do not publish planned features as released behavior.
+The homepage includes `MobileApplication`, `WebPage`, `WebSite`, and developer JSON-LD, visible product answers, Open Graph/Twitter metadata, and a static sitemap. The free download was confirmed by the developer on October 19, 2026. US in-app purchase prices and the rating were checked against Apple's public listing and lookup API on that date. The structured offer describes the free download; it does not imply that all workout access or in-app purchases are free. Update the visible facts, their check dates, matching JSON-LD, and sitemap modification date together when they change. Do not publish planned features as released behavior.
 
 `https://greggroll.github.io/robots.txt` is served by the separate `GreggRoll/GreggRoll.github.io` repository. A `robots.txt` inside this project's `/docs` folder would be served below `/VO2Cue/` and would not control crawlers. The root policy preserves open access and advertises this site's sitemap. Submit `https://greggroll.github.io/VO2Cue/sitemap.xml` in Google Search Console and Bing Webmaster Tools once signed in.
 
