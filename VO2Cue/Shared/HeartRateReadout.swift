@@ -84,9 +84,6 @@ struct HeartRateCard: View {
                 if runtime.profile.heartRateGuidance?.cuesEnabled == true, let coaching = value.status.coaching {
                     Text(coaching).font(.subheadline)
                 }
-                if value.trendBPM != nil, value.target != nil {
-                    Text("Status uses a recent 10-second trend.").font(.caption2).foregroundStyle(.secondary)
-                }
                 source(value, now: context.date)
             }
             .padding(18)
@@ -146,7 +143,7 @@ struct HeartRateTargetMeter: View {
         GeometryReader { geometry in
             let width = geometry.size.width
             let span = Double(max(1, target.upper - target.lower))
-            let position = sample.map { min(0.98, max(0.02, ($0.bpm - Double(target.lower) + span) / (3 * span))) }
+            let position = sample.map { min(0.98, max(0.02, (Double($0.bpm.rounded()) - Double(target.lower) + span) / (3 * span))) }
             ZStack(alignment: .leading) {
                 Capsule().fill(.secondary.opacity(0.16)).frame(height: 9)
                 Rectangle().fill(.green.opacity(0.55)).frame(width: width / 3, height: 9).offset(x: width / 3)
@@ -159,7 +156,7 @@ struct HeartRateTargetMeter: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Heart-rate range meter")
         .accessibilityValue(sample.map { sample in
-            let direction = sample.bpm < Double(target.lower) ? "below target" : sample.bpm > Double(target.upper) ? "above target" : "in target"
+            let direction = target.status(for: sample.bpm) == .below ? "below target" : target.status(for: sample.bpm) == .above ? "above target" : "in target"
             return "\(Int(sample.bpm.rounded())) BPM, \(direction). Target \(target.lower) to \(target.upper) BPM"
         } ?? "No fresh reading. Target \(target.lower) to \(target.upper) BPM")
         .accessibilityIdentifier("heartRateRangeMeter")

@@ -80,6 +80,39 @@ final class VO2CueUITests: XCTestCase {
         }
     }
 
+    func testRecoveryBelowTargetAndRemovedCoachingText() {
+        app.terminate()
+        app.launchArguments += ["-heartSyncFixture", "recoveryBelow"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["heartRateStatus"].waitForExistence(timeout: 5))
+        XCTAssertEqual(app.staticTexts["heartRateStatus"].label, "Below target")
+        XCTAssertTrue(app.staticTexts["currentHeartRate"].label.contains("100"))
+        XCTAssertFalse(app.staticTexts["Keep recovery easy"].exists)
+        XCTAssertFalse(app.staticTexts["Build gradually toward your target."].exists)
+        XCTAssertFalse(app.staticTexts["Status uses a recent 10-second trend."].exists)
+        captureScreen("Recovery below target build 8")
+    }
+
+    func testTimelineRequiresRecordedWatchHeartRate() {
+        for fixture in ["phone", "watchNoSamples"] {
+            app.terminate()
+            app.launchArguments = ["-hasCompletedOnboarding", "YES", "-hasAlreadyReviewed", "YES",
+                "-purchaseFixture", "paid", "-heartSyncFixture", fixture, "-healthSavingEnabled", "NO"]
+            app.launch()
+            XCTAssertTrue(app.buttons["Pause"].waitForExistence(timeout: 5))
+            app.swipeUp()
+            XCTAssertFalse(app.staticTexts["Workout timeline"].exists)
+            XCTAssertFalse(app.otherElements.matching(identifier: "workoutHeartRateGraph").firstMatch.exists)
+            captureScreen("No heart-rate timeline \(fixture)")
+            if fixture == "phone" {
+                app.buttons["End"].tap()
+                app.buttons["End workout"].tap()
+                XCTAssertTrue(app.staticTexts["Workout ended"].waitForExistence(timeout: 3))
+                XCTAssertFalse(app.staticTexts["Workout timeline"].exists)
+            }
+        }
+    }
+
     func testHeartSyncSettingsAndProfileGuidance() {
         app.tabBars.buttons["Settings"].tap()
         let targets = app.buttons["Heart-rate targets"]
@@ -210,6 +243,7 @@ final class VO2CueUITests: XCTestCase {
 
         let pauseButton = app.buttons["Pause"]
         XCTAssertTrue(pauseButton.waitForExistence(timeout: 3))
+        XCTAssertFalse(app.staticTexts["Workout timeline"].exists)
         pauseButton.tap()
         XCTAssertTrue(app.buttons["Resume"].waitForExistence(timeout: 2))
         app.buttons["Resume"].tap()
@@ -219,6 +253,7 @@ final class VO2CueUITests: XCTestCase {
         app.buttons["End workout"].tap()
 
         XCTAssertTrue(app.staticTexts["Workout ended"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.staticTexts["Workout timeline"].exists)
         let duration = app.staticTexts["completedActualDuration"].label.split(separator: ":").compactMap { Int($0) }
         XCTAssertEqual(duration.count, 2)
         XCTAssertLessThan(duration[0] * 60 + duration[1], 600, "Skipping warmup must not add ten minutes")
@@ -227,6 +262,10 @@ final class VO2CueUITests: XCTestCase {
         app.tabBars.buttons["Progress"].tap()
         scrollTo(app.staticTexts["Norwegian 4×4"].firstMatch)
         XCTAssertTrue(app.staticTexts["Norwegian 4×4"].waitForExistence(timeout: 3))
+        app.staticTexts["Norwegian 4×4"].firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["Phase breakdown"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.staticTexts["Workout timeline"].exists)
+        captureScreen("Phone workout history without HR timeline")
     }
 
     func testWeeklyGoalCanBeEditedAndPersistsAfterRelaunch() {

@@ -391,10 +391,18 @@ final class AppModel {
         let now = Date()
         var profile = WorkoutProfile.norwegian4x4
         profile.heartRateGuidance = HeartRateGuidance(maximumBPM: 180)
+        if fixture == "phone" {
+            let runtime = WorkoutRuntime(profile: profile)
+            runtime.start(at: now)
+            activeRuntime = runtime
+            return
+        }
+        let isRecovery = fixture.hasPrefix("recovery")
+        let readingBPM = fixture == "recoveryBelow" ? 100.0 : isRecovery ? 119.0 : 164.0
         let watch = WorkoutRuntime(profile: profile)
-        let elapsed: Double = fixture == "recovery" ? 1_290 : 1_122
+        let elapsed: Double = isRecovery ? 1_290 : 1_122
         watch.start(at: now.addingTimeInterval(-elapsed))
-        for second in stride(from: 0.0, through: elapsed - 2, by: 5) {
+        for second in stride(from: 0.0, through: fixture == "watchNoSamples" ? -1 : elapsed - 2, by: 5) {
             let date = now.addingTimeInterval(second - elapsed)
             watch.update(at: date, emitCues: false)
             let kind = watch.snapshot.phase.kind
@@ -405,8 +413,10 @@ final class AppModel {
         if fixture == "paused" { watch.pause(at: now) }
         let kind = watch.snapshot.phase.kind
         let sampleDate = fixture == "missing" ? now.addingTimeInterval(-20) : now
-        let reading = HeartRatePresentation(sample: .init(bpm: fixture == "recovery" ? 119 : 164, date: sampleDate), trendBPM: fixture == "recovery" ? 119 : 164,
-            target: profile.heartRateGuidance?.target(for: kind), status: fixture == "paused" ? .paused : .inTarget)
+        let target = profile.heartRateGuidance?.target(for: kind)
+        let reading = HeartRatePresentation(sample: fixture == "watchNoSamples" ? nil : .init(bpm: readingBPM, date: sampleDate),
+            trendBPM: isRecovery ? 119 : 164, target: target,
+            status: fixture == "paused" ? .paused : fixture == "watchNoSamples" ? .waiting : target?.status(for: readingBPM) ?? .monitoring)
         guard let state = watch.sessionState(revision: 1, heartRate: reading, at: now, includeTrace: true) else { return }
         let runtime = WorkoutRuntime(profile: profile, id: state.sessionID, timeline: state.timeline, isMirrored: true)
         _ = runtime.applyRemoteState(state, at: now)
@@ -426,8 +436,8 @@ final class AppModel {
                 guard !Task.isCancelled, let self, self.activeRuntime?.id == runtime.id else { return }
                 let currentDate = Date()
                 var reading = reading
-                if fixture != "missing" {
-                    reading.sample = HeartRateSample(bpm: fixture == "recovery" ? 119 : 164, date: currentDate)
+                if fixture != "missing", fixture != "watchNoSamples" {
+                    reading.sample = HeartRateSample(bpm: readingBPM, date: currentDate)
                 }
                 if let sample = reading.sample { watch.recordHeartRate(sample, at: currentDate) }
                 revision += 1

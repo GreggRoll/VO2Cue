@@ -40,7 +40,7 @@ final class HeartRateGuidanceTests: XCTestCase {
         XCTAssertNil(HeartRatePreferences(maximumBPM: 0).confirmedMaximum)
     }
 
-    func testTransitionStatesAndNoPushDuringRecovery() {
+    func testTransitionStatesAndBelowTargetRecovery() {
         var coach = HeartRateCoach()
         _ = coach.update(sample: .init(bpm: 120, date: start), snapshot: snapshot(seconds: 20), running: true,
             guidance: guidance, sessionStartedAt: start.addingTimeInterval(-20), now: start)
@@ -50,7 +50,7 @@ final class HeartRateGuidanceTests: XCTestCase {
         XCTAssertEqual(coach.presentation.status, .settling)
         _ = coach.update(sample: .init(bpm: 90, date: start.addingTimeInterval(12)), snapshot: snapshot(.recovery, seconds: 90), running: true,
             guidance: guidance, sessionStartedAt: start.addingTimeInterval(-20), now: start.addingTimeInterval(12))
-        XCTAssertEqual(coach.presentation.status, .easyRecovery)
+        XCTAssertEqual(coach.presentation.status, .below)
     }
 
     func testHighWorkIsVisibleDuringBuildingWindowAndRawNumberIsPreserved() {
@@ -110,7 +110,7 @@ final class HeartRateGuidanceTests: XCTestCase {
         XCTAssertNil(coach.presentation.sample)
     }
 
-    func testHysteresisAndCueCooldownRequireSustainedFreshSamples() {
+    func testDisplayedRangeAndCueCooldownRequireSustainedFreshSamples() {
         var coach = HeartRateCoach()
         let phase = snapshot()
         var cues: [Int] = []
@@ -123,10 +123,26 @@ final class HeartRateGuidanceTests: XCTestCase {
         XCTAssertEqual(coach.presentation.status, .above)
         _ = coach.update(sample: .init(bpm: 170, date: start.addingTimeInterval(115)), snapshot: phase,
                          running: true, guidance: guidance, sessionStartedAt: start, now: start.addingTimeInterval(115))
-        XCTAssertEqual(coach.presentation.status, .above)
+        XCTAssertEqual(coach.presentation.status, .inTarget)
         _ = coach.update(sample: .init(bpm: 165, date: start.addingTimeInterval(130)), snapshot: phase,
                          running: true, guidance: guidance, sessionStartedAt: start, now: start.addingTimeInterval(130))
         XCTAssertEqual(coach.presentation.status, .inTarget)
+    }
+
+    func testCurrentDisplayedReadingDrivesRecoveryStatusInsteadOfOlderTrend() {
+        var coach = HeartRateCoach()
+        let phase = snapshot(.recovery, seconds: 100)
+        _ = coach.update(sample: .init(bpm: 119, date: start), snapshot: phase, running: true,
+            guidance: guidance, sessionStartedAt: start, now: start)
+        _ = coach.update(sample: .init(bpm: 100, date: start.addingTimeInterval(1)), snapshot: phase, running: true,
+            guidance: guidance, sessionStartedAt: start, now: start.addingTimeInterval(1))
+        XCTAssertEqual(coach.presentation.status, .below)
+        XCTAssertEqual(HeartRateHalfwayCue.resolve(presentation: coach.presentation, phase: .recovery,
+            guidance: guidance, at: start.addingTimeInterval(1)), .up)
+        XCTAssertNil(HeartRateStatus.building.coaching)
+        XCTAssertNil(HeartRateStatus.easyRecovery.coaching)
+        XCTAssertNil(HeartRateStatus.below.coaching)
+        XCTAssertEqual(HeartRateStatus.easyRecovery.title, "Below target")
     }
 
     func testCuesOffAndMissingTargetsRemainUsable() {

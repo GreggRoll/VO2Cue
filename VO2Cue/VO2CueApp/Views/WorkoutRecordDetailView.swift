@@ -8,9 +8,9 @@ struct WorkoutRecordDetailView: View {
             VStack(alignment: .leading, spacing: 24) {
                 Text(record.startedAt, format: .dateTime.month().day().year().hour().minute())
                     .foregroundStyle(.secondary)
-                if let phases = record.phaseResults {
+                if let phases = record.phaseResults, let trace = record.heartRateTrace, !trace.points.isEmpty {
                     WorkoutIntervalGraph(phases: WorkoutGraphPhase.make(results: phases, guidance: record.heartRateGuidance),
-                        trace: record.heartRateTrace ?? .init(), elapsed: Double(record.displayedSeconds), isLive: false)
+                        trace: trace, elapsed: Double(record.displayedSeconds), isLive: false)
                 }
                 WorkoutSummaryDetails(record: record)
                 WorkoutReflectionView(recordID: record.id)

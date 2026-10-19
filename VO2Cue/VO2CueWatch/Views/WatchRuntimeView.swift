@@ -7,23 +7,31 @@ struct WatchRuntimeView: View {
     @State private var page = 0
 
     var body: some View {
-        Group {
-            if runtime.status == .completed || runtime.status == .ended {
-                completion
-            } else {
-                TabView(selection: $page) {
-                    timerPage.tag(0)
-                    controlsPage.tag(1)
-                    ScrollView {
-                        VStack(spacing: 8) {
-                            Button("Timer", systemImage: "timer") { page = 0 }
-                                .font(.caption2).buttonStyle(.plain)
-                            RuntimeIntervalGraph(runtime: runtime)
-                        }.padding(.horizontal, 4)
-                    }.tag(2)
+        NavigationStack {
+            Group {
+                if runtime.status == .completed || runtime.status == .ended {
+                    completion
+                } else {
+                    TabView(selection: $page) {
+                        timerPage.tag(0)
+                        controlsPage.tag(1)
+                        if !runtime.heartRateTrace.points.isEmpty {
+                            ScrollView {
+                                VStack(spacing: 8) {
+                                    Button("Timer", systemImage: "timer") { page = 0 }
+                                        .font(.caption2).buttonStyle(.plain)
+                                    RuntimeIntervalGraph(runtime: runtime)
+                                }.padding(.horizontal, 4)
+                            }.tag(2)
+                        }
+                    }
+                    .tabViewStyle(.verticalPage)
                 }
-                .tabViewStyle(.verticalPage)
             }
+            .navigationTitle(page == 0 && (runtime.status == .running || runtime.status == .paused)
+                ? (model.heartRate.isPreviewData ? "\(runtime.snapshot.phase.displayTitle) · Debug" : runtime.snapshot.phase.displayTitle)
+                : "Workout")
+            .navigationBarTitleDisplayMode(.inline)
         }
         .confirmationDialog("End workout?", isPresented: $confirmEnd) {
             Button("End workout", role: .destructive) { model.control(.end) }
@@ -34,10 +42,6 @@ struct WatchRuntimeView: View {
     private var timerPage: some View {
         ScrollView {
         VStack(spacing: 2) {
-            Label(model.heartRate.isPreviewData ? "Debug · \(runtime.snapshot.phase.displayTitle)" : runtime.snapshot.phase.displayTitle, systemImage: runtime.snapshot.phase.kind.systemImage)
-                .font(.subheadline.weight(.semibold))
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
             if let round = runtime.snapshot.phase.roundDescription {
                 Text(round)
                     .font(.caption2)
@@ -50,14 +54,20 @@ struct WatchRuntimeView: View {
                 .contentTransition(.numericText(countsDown: true))
                 .accessibilityLabel("Time remaining")
                 .accessibilityValue(runtime.snapshot.remainingSeconds.timerText)
-            Button { page = 2 } label: {
+            if runtime.heartRateTrace.points.isEmpty {
                 WatchHeartRateReadout(feed: model.heartRate, runtime: runtime)
+            } else {
+                Button { page = 2 } label: {
+                    WatchHeartRateReadout(feed: model.heartRate, runtime: runtime)
+                }
+                .buttonStyle(.plain)
+                .accessibilityHint("Show workout timeline")
+                .accessibilityIdentifier("watchHeartRateTimeline")
             }
-            .buttonStyle(.plain)
-            .accessibilityHint("Show workout timeline")
-            .accessibilityIdentifier("watchHeartRateTimeline")
         }
+        .frame(maxWidth: .infinity, alignment: .top)
         }
+        .contentMargins(.top, 0, for: .scrollContent)
         .padding(.horizontal, 4)
         .containerBackground(phaseColor.gradient, for: .tabView)
     }

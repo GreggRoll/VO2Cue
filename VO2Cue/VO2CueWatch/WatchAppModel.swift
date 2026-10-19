@@ -150,10 +150,12 @@ final class WatchAppModel {
 
     private func refreshHeartRate(sample: HeartRateSample? = nil) {
         guard let runtime, let startedAt = runtime.startedAt else { return }
-        if let sample { runtime.recordHeartRate(sample) }
         let cue = coach.update(sample: sample, snapshot: runtime.snapshot, running: runtime.status == .running,
             guidance: runtime.profile.heartRateGuidance, sessionStartedAt: startedAt, now: Date())
         heartRate.presentation = coach.presentation
+        // A sample callback can cross the halfway point. Classify the newest reading
+        // before recording advances the timer and emits that spoken cue.
+        if let sample { runtime.recordHeartRate(sample) }
         if let cue { cues.handleHeartRate(cue, profile: runtime.profile) }
         publish()
     }
@@ -259,7 +261,7 @@ final class WatchAppModel {
         var profile = WorkoutProfile.heartSyncCheck
         profile.heartRateGuidance = .init(maximumBPM: 180)
         let preview = WorkoutRuntime(profile: profile)
-        let elapsed = fixture == "recovery" ? 200.0 : 135.0
+        let elapsed = fixture.hasPrefix("recovery") ? 200.0 : 135.0
         let start = now.addingTimeInterval(-elapsed)
         preview.start(at: start)
         for second in stride(from: 0.0, through: elapsed - 2, by: 3) {
@@ -274,7 +276,7 @@ final class WatchAppModel {
             while !Task.isCancelled {
                 guard let self else { return }
                 let date = Date()
-                let sample = HeartRateSample(bpm: fixture == "recovery" ? 119 : 164,
+                let sample = HeartRateSample(bpm: fixture == "recoveryBelow" ? 100 : fixture == "recovery" ? 119 : 164,
                     date: fixture == "missing" ? date.addingTimeInterval(-20) : date)
                 preview.recordHeartRate(sample, at: date)
                 _ = self.coach.update(sample: sample, snapshot: preview.snapshot, running: true,

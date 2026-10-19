@@ -20,22 +20,27 @@ final class HeartRateWorkoutGraphTests: XCTestCase {
         XCTAssertEqual(disabled.resolvingHeartRate(preferences).heartRateGuidance?.enabled, false)
     }
 
-    func testHalfwayGuidanceUsesFreshTrendAndDoesNotPushEasyRecovery() {
+    func testHalfwayGuidanceMatchesDisplayedRangeInBothPhases() {
         let now = Date()
         let guidance = HeartRateGuidance(maximumBPM: 180)
-        var value = HeartRatePresentation(sample: .init(bpm: 160, date: now), trendBPM: 140, status: .building)
-        XCTAssertEqual(HeartRateHalfwayCue.resolve(presentation: value, phase: .work, guidance: guidance, at: now), .up)
-        value.trendBPM = 160
+        for phase in [WorkoutPhaseKind.work, .recovery] {
+            let range = guidance.target(for: phase)!
+            for (bpm, cue) in [(range.lower - 1, HeartRateHalfwayCue.up),
+                               (range.lower, .good), (range.upper, .good), (range.upper + 1, .down)] {
+                // An older in-range trend must never mask the current out-of-range reading.
+                let value = HeartRatePresentation(sample: .init(bpm: Double(bpm), date: now),
+                    trendBPM: Double(range.lower + 2), target: range, status: .inTarget)
+                XCTAssertEqual(HeartRateHalfwayCue.resolve(presentation: value, phase: phase, guidance: guidance, at: now), cue)
+            }
+        }
+        var value = HeartRatePresentation(sample: .init(bpm: 160, date: now), trendBPM: 190, status: .inTarget)
         XCTAssertEqual(HeartRateHalfwayCue.resolve(presentation: value, phase: .work, guidance: guidance, at: now), .good)
-        value.trendBPM = 180
-        XCTAssertEqual(HeartRateHalfwayCue.resolve(presentation: value, phase: .work, guidance: guidance, at: now), .down)
-        value.trendBPM = 90
-        XCTAssertEqual(HeartRateHalfwayCue.resolve(presentation: value, phase: .recovery, guidance: guidance, at: now), .good)
         XCTAssertNil(HeartRateHalfwayCue.resolve(presentation: value, phase: .work, guidance: guidance, at: now.addingTimeInterval(16)))
         XCTAssertNil(HeartRateHalfwayCue.resolve(presentation: value, phase: .warmup, guidance: guidance, at: now))
         XCTAssertNil(HeartRateHalfwayCue.resolve(presentation: value, phase: .work, guidance: .init(cuesEnabled: false, maximumBPM: 180), at: now))
         value.status = .paused
         XCTAssertNil(HeartRateHalfwayCue.resolve(presentation: value, phase: .work, guidance: guidance, at: now))
+        XCTAssertEqual(HeartRateRange(lower: 108, upper: 126).status(for: 107.6), .inTarget)
     }
 
     func testBoundedTraceRetainsWholeWorkoutAndSeparatesSensorGaps() throws {

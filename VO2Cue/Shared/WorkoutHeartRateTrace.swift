@@ -75,10 +75,11 @@ enum HeartRateHalfwayCue: String, Equatable {
               let range = guidance?.target(for: phase),
               let sample = presentation.sample, sample.isFresh(at: now),
               presentation.status != .paused else { return nil }
-        let bpm = presentation.trendBPM ?? sample.bpm
-        guard bpm.isFinite else { return nil }
-        if bpm > Double(range.upper) { return .down }
-        if bpm < Double(range.lower), phase == .work { return .up }
-        return .good
+        switch range.status(for: sample.bpm) {
+        case .below: return .up
+        case .above: return .down
+        case .inTarget: return .good
+        default: return nil
+        }
     }
 }

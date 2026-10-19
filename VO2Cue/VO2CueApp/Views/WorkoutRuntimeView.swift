@@ -50,6 +50,10 @@ private struct ActiveWorkoutView: View {
             VStack(spacing: 22) {
                 WorkoutPhaseHeader(phase: runtime.snapshot.phase)
                 WorkoutTimerReadout(snapshot: runtime.snapshot)
+                if !runtime.isMirrored {
+                    ProgressView(value: runtime.snapshot.progress)
+                        .tint(.primary).accessibilityLabel("Phase progress")
+                }
                 if runtime.isMirrored || runtime.profile.heartRateGuidance?.enabled == true {
                     HeartRateCard(feed: model.workoutMirror.heartRate, runtime: runtime)
                 }

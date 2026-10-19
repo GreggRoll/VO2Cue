@@ -1,19 +1,18 @@
-HEART SYNC PREVIEW — version 1.2, build 7
+HEART SYNC PREVIEW — version 1.2, build 8
 
-Install build 7 on BOTH iPhone and Apple Watch.
+Install build 8 on BOTH iPhone and Apple Watch.
 
-NEW IN THIS BUILD
-• A moving heart-rate range meter on both devices shows below, in, or above the current interval target.
-• Onboarding asks for maximum heart rate. Enter it directly or calculate an editable estimate with 220 − (0.7 × age). Only the confirmed maximum and source are saved; age is not stored. Existing users can use Settings > Heart-rate targets, or set up at their next Watch start.
-• After setting a maximum, Watch workouts automatically use 85–95% for hard intervals and 60–70% for recovery. Custom profile ranges and explicitly disabled guidance are respected. Changes apply to the next workout.
-• A workout timeline shows hard/recovery cycles, dashed lower/upper target lines, and measured BPM. Scroll down on iPhone; swipe to the graph page on Watch. Tap the iPhone graph to inspect readings. The graph is also saved in workout history.
-• Hard/recovery halfway cues now say Heart rate up, Heart rate down, or Heart rate good when fresh readings and targets are available. Below-target recovery says good to keep recovery easy. Missing readings, disabled HR cues, warmup and cooldown keep normal Halfway cues. Spoken cues and halfway cues must be enabled in the profile.
+FIXES IN THIS BUILD
+• Recovery below the lower target now says Heart rate up. Heart rate good is reserved for readings within the target range, including its boundaries, in both hard and recovery intervals.
+• Range status, meter and halfway cues now agree with the current rounded BPM displayed on screen, instead of an older trend. Stale and paused samples still suppress heart-rate cues.
+• Removed Keep recovery easy, Build gradually toward your target, and the ten-second trend explanation. Ongoing deviation cues also use Heart rate up/down.
+• Workout timelines appear only after Watch heart-rate readings have actually been recorded. Phone-only timers and records without heart-rate data have no timeline. Previously recorded Watch graphs remain visible during pauses and temporary sensor gaps.
+• The Watch phase name uses the compact top title area, freeing space for the bottom target text. Tap the heart-rate readout to see its graph once readings have been collected; tap Timer to return.
 
 WHAT TO TEST
-1. Estimate from age 40: confirm 192 BPM, then edit or save it. Check both phase targets on the next Watch workout.
-2. Compare the range meter, raw BPM, status and graph on both devices. Status/cues use a recent ten-second trend; the meter follows raw BPM.
-3. Listen at each hard/recovery halfway point. Test below, within and above target; stale readings must never announce good.
-4. Pause/resume and skip. Pauses must not stretch the graph; skipped time and sensor gaps remain blank. Finish/end early, then reopen the saved graph in Progress. Check one history entry and one Apple Health workout.
-5. Lock/background iPhone, lower your wrist, disconnect/reconnect, and test sensor/swimming gaps. Watch keeps the workout running; graph history backfills periodically on reconnect. Phone controls await Watch confirmation. Sync diagnostics show reading/update age and estimated delivery delay.
+1. During recovery, compare below/in/above target status and meter on both devices. At halfway, below must say up, within must say good, and above must say down. Enable halfway, heart-rate and spoken cues in the profile.
+2. Confirm the removed coaching/trend messages never appear.
+3. Start a phone-only workout: no Workout timeline should appear while running, on completion or in its saved detail. Start a Watch workout without a reading: the graph should appear only after the first recorded reading.
+4. Check Sprint/Recover, countdown, BPM, status, meter and bottom target on your Watch screen. Pause/resume, skip, disconnect/reconnect and create a sensor gap. Missing readings must not announce good; collected graph history must remain available.
 
-Graphs are reduced-resolution, bounded to 480 points, and stay on the paired devices. No simulated heart rate is used in TestFlight. Actual sensor cadence and radio/background behavior require physical-device testing. Live Activities continue to show the interval timer; open the app for live HR and the graph.
+Maximum-HR setup and the age estimate 220 − (0.7 × age) are unchanged. Watch graphs remain local to the paired devices and bounded to 480 points. No simulated HR source is included in TestFlight. Live Activities show the interval timer; open the app for HR and the graph.

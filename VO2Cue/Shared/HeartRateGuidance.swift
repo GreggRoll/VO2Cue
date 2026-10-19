@@ -6,6 +6,14 @@ struct HeartRateRange: Codable, Equatable, Sendable {
     var upper: Int
     var isValid: Bool { (30...250).contains(lower) && (30...250).contains(upper) && lower < upper }
     var label: String { "\(lower)–\(upper)" }
+
+    func status(for bpm: Double) -> HeartRateStatus {
+        guard bpm.isFinite, (20...260).contains(bpm) else { return .missing }
+        let displayed = Int(bpm.rounded())
+        if displayed < lower { return .below }
+        if displayed > upper { return .above }
+        return .inTarget
+    }
 }
 
 enum MaximumHeartRateSource: String, Codable, CaseIterable, Identifiable, Sendable {
@@ -85,12 +93,12 @@ enum HeartRateStatus: String, Codable, Equatable, Sendable {
         case .below: "Below target"
         case .inTarget: "In target"
         case .above: "Above target"
-        case .easyRecovery: "Keep recovery easy"
+        case .easyRecovery: "Below target"
         }
     }
     var symbol: String {
         switch self {
-        case .below: "arrow.up"
+        case .below, .easyRecovery: "arrow.up"
         case .above: "arrow.down"
         case .inTarget: "checkmark"
         case .building, .settling: "hourglass"
@@ -100,12 +108,9 @@ enum HeartRateStatus: String, Codable, Equatable, Sendable {
     }
     var coaching: String? {
         switch self {
-        case .below: "Build your effort gradually."
         case .above: "Ease your effort."
         case .inTarget: "Hold this effort."
-        case .building: "Build gradually toward your target."
         case .settling: "Let your heart rate settle."
-        case .easyRecovery: "Keep recovery easy."
         case .unconfigured: "Set a confirmed maximum or custom BPM ranges in your profile."
         default: nil
         }
@@ -140,11 +145,10 @@ struct HeartRatePresentation: Codable, Equatable, Sendable {
     }
 }
 
-// The Watch evaluates the trend once. Both displays receive this same classification.
+// The Watch classifies the displayed BPM once; both displays and halfway cues agree.
 struct HeartRateCoach {
     private var samples: [HeartRateSample] = []
     private var phaseID: UUID?
-    private var boundaryStatus: HeartRateStatus = .inTarget
     private var deviationSince: Date?
     private var deviation: HeartRateStatus?
     private var lastCueAt: Date?
@@ -169,7 +173,6 @@ struct HeartRateCoach {
             samples.removeAll()
             deviationSince = nil
             deviation = nil
-            boundaryStatus = .inTarget
             // Leave space for the interval transition cue.
             lastCueAt = now
         }
@@ -203,25 +206,11 @@ struct HeartRateCoach {
             return nil
         }
         guard let target = presentation.target else { presentation.status = .unconfigured; return nil }
-        let margin = 3.0
-        let next: HeartRateStatus
-        if trend < Double(target.lower) - (boundaryStatus == .below ? 0 : margin) {
-            next = .below
-        } else if trend > Double(target.upper) + (boundaryStatus == .above ? 0 : margin) {
-            next = .above
-        } else if boundaryStatus == .below && trend < Double(target.lower) + margin {
-            next = .below
-        } else if boundaryStatus == .above && trend > Double(target.upper) - margin {
-            next = .above
-        } else {
-            next = .inTarget
-        }
-        boundaryStatus = next
+        let next = target.status(for: latest.bpm)
         var status = next
         if snapshot.phase.kind == .work, next == .below, snapshot.phaseElapsedSeconds < 90 { status = .building }
         if snapshot.phase.kind == .recovery {
             if next == .above, snapshot.phaseElapsedSeconds < 60 { status = .settling }
-            if next == .below { status = .easyRecovery }
         }
         presentation.status = status
         guard status == .below || status == .above else {

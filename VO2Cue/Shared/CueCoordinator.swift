@@ -56,7 +56,7 @@ final class CueCoordinator {
             WKInterfaceDevice.current().play(status == .above ? .directionDown : .directionUp)
         }
         #endif
-        speak(status == .above ? "Ease your effort" : "Build gradually", enabled: profile.cues.voiceEnabled)
+        speak(status == .above ? HeartRateHalfwayCue.down.rawValue : HeartRateHalfwayCue.up.rawValue, enabled: profile.cues.voiceEnabled)
     }
 
     private func speak(_ phrase: String, enabled: Bool) {

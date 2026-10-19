@@ -151,10 +151,12 @@ struct WorkoutIntervalGraph: View, Equatable {
 struct RuntimeIntervalGraph: View {
     let runtime: WorkoutRuntime
     var body: some View {
-        WorkoutIntervalGraph(phases: WorkoutGraphPhase.make(results: runtime.phaseResults,
-            guidance: runtime.profile.heartRateGuidance), trace: runtime.heartRateTrace,
-            elapsed: Double(runtime.elapsedSeconds),
-            isLive: runtime.status == .running || runtime.status == .paused)
-            .equatable()
+        if !runtime.heartRateTrace.points.isEmpty {
+            WorkoutIntervalGraph(phases: WorkoutGraphPhase.make(results: runtime.phaseResults,
+                guidance: runtime.profile.heartRateGuidance), trace: runtime.heartRateTrace,
+                elapsed: Double(runtime.elapsedSeconds),
+                isLive: runtime.status == .running || runtime.status == .paused)
+                .equatable()
+        }
     }
 }
