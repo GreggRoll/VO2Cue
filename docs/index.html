@@ -3,69 +3,180 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Meet VO2Cue: an eyes-free interval coach for iPhone and Apple Watch. Explore the open-source app, start your first 4×4 workout, and earn a free lifetime subscription with an accepted and merged pull request.">
+  <meta name="description" content="Train with Norwegian 4×4 and custom intervals on iPhone and Apple Watch. VO2Cue guides you with haptics, tones, and voice cues. No account, ads, or tracking.">
   <meta name="theme-color" content="#101a1b">
-  <meta property="og:title" content="VO2Cue · Your effort. Our cues.">
-  <meta property="og:description" content="A closer look at your eyes-free 4×4 interval coach for iPhone and Apple Watch.">
+  <meta property="og:title" content="VO2Cue — 4×4 Interval Timer for iPhone &amp; Apple Watch">
+  <meta property="og:description" content="Train with Norwegian 4×4 and custom intervals on iPhone and Apple Watch. VO2Cue guides you with haptics, tones, and voice cues. No account, ads, or tracking.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://greggroll.github.io/VO2Cue/">
-  <link rel="icon" type="image/png" href="assets/app-icon.png">
-  <link rel="apple-touch-icon" href="assets/app-icon.png">
-  <title>VO2Cue · App demo & quick start</title>
+  <meta property="og:site_name" content="VO2Cue">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://greggroll.github.io/VO2Cue/assets/social-preview.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="VO2Cue, an eyes-free 4×4 interval coach for iPhone and Apple Watch, with the live workout timer on both devices.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="VO2Cue — 4×4 Interval Timer for iPhone &amp; Apple Watch">
+  <meta name="twitter:description" content="Norwegian 4×4 and custom intervals, guided by haptics, tones, and voice cues. No account, ads, or tracking.">
+  <meta name="twitter:image" content="https://greggroll.github.io/VO2Cue/assets/social-preview.png">
+  <meta name="twitter:image:alt" content="VO2Cue interval timers on iPhone and Apple Watch.">
+  <meta name="apple-itunes-app" content="app-id=6804899072">
+  <link rel="icon" type="image/png" href="assets/favicon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" sizes="180x180">
+  <title>VO2Cue — 4×4 Interval Timer for iPhone &amp; Apple Watch</title>
   <link rel="canonical" href="https://greggroll.github.io/VO2Cue/">
-  <link rel="stylesheet" href="demo/demo.css">
+  <link rel="stylesheet" href="demo/demo.css?v=20261019">
+  <link rel="sitemap" type="application/xml" href="sitemap.xml">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://greggroll.github.io/VO2Cue/#website",
+      "url": "https://greggroll.github.io/VO2Cue/",
+      "name": "VO2Cue",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "Person",
+      "@id": "https://greggroll.github.io/VO2Cue/#developer",
+      "name": "Gregory Colton Adams",
+      "alternateName": "Greg Adams",
+      "url": "https://github.com/GreggRoll"
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://greggroll.github.io/VO2Cue/#webpage",
+      "url": "https://greggroll.github.io/VO2Cue/",
+      "name": "VO2Cue — 4×4 Interval Timer for iPhone & Apple Watch",
+      "description": "Train with Norwegian 4×4 and custom intervals on iPhone and Apple Watch. VO2Cue guides you with haptics, tones, and voice cues. No account, ads, or tracking.",
+      "inLanguage": "en",
+      "dateModified": "2026-10-19",
+      "isPartOf": {
+        "@id": "https://greggroll.github.io/VO2Cue/#website"
+      },
+      "mainEntity": {
+        "@id": "https://greggroll.github.io/VO2Cue/#app"
+      }
+    },
+    {
+      "@type": "MobileApplication",
+      "@id": "https://greggroll.github.io/VO2Cue/#app",
+      "name": "VO2Cue",
+      "url": "https://greggroll.github.io/VO2Cue/",
+      "description": "An eyes-free interval timer for iPhone and Apple Watch with Norwegian 4×4, custom workouts, haptics, tones, optional voice cues, and private on-device progress.",
+      "applicationCategory": "HealthApplication",
+      "operatingSystem": "iOS 17.0 or later; watchOS 10.0 or later",
+      "inLanguage": "en",
+      "image": "https://greggroll.github.io/VO2Cue/assets/apple-touch-icon.png",
+      "screenshot": [
+        "https://greggroll.github.io/VO2Cue/demo/assets/timer.jpg",
+        "https://greggroll.github.io/VO2Cue/demo/assets/progress.jpg"
+      ],
+      "installUrl": "https://apps.apple.com/us/app/vo2cue/id6804899072",
+      "sameAs": "https://apps.apple.com/us/app/vo2cue/id6804899072",
+      "author": {
+        "@id": "https://greggroll.github.io/VO2Cue/#developer"
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": "https://apps.apple.com/us/app/vo2cue/id6804899072",
+        "price": "1.99",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "Norwegian 4×4 interval workout",
+        "Custom work, recovery, warmup, and cooldown intervals",
+        "Apple Watch workout controls and haptic cues",
+        "Optional tones and voice cues",
+        "Private on-device workout history and weekly goals",
+        "Optional Apple Health workout saving"
+      ],
+      "isAccessibleForFree": false,
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": 5,
+        "bestRating": 5,
+        "ratingCount": 2
+      }
+    }
+  ]
+}
+  </script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
 <header class="header wrap">
-  <a class="brand" href="./" aria-label="VO2Cue demo home"><img class="app-icon" src="assets/app-icon.png" width="44" height="44" alt=""> VO2Cue</a>
+  <a class="brand" href="./" aria-label="VO2Cue home"><img class="app-icon" src="assets/app-icon-44.png" srcset="assets/app-icon-44.png 1x, assets/app-icon-88.png 2x, assets/app-icon-132.png 3x" width="44" height="44" alt=""> VO2Cue</a>
   <nav aria-label="Main navigation"><a href="#screenshots">The app</a><a href="#widgets">Widgets</a><a href="#how-to">How to use</a><a href="#contribute">Contribute</a><a class="nav-download" href="https://apps.apple.com/us/app/vo2cue/id6804899072">Get VO2Cue <span aria-hidden="true">↗</span></a></nav>
 </header>
-<main id="main">
+<main id="main" tabindex="-1">
   <section class="hero wrap">
     <div class="hero-copy">
-      <p class="eyebrow"><span class="dot"></span> YOUR EYES-FREE INTERVAL COACH</p>
-      <h1>Your effort.<br>Our <em>cues.</em></h1>
-      <p class="intro">Get into your workout. VO2Cue keeps the intervals moving with clear timers, Apple Watch haptics, tones, and optional voice cues.</p>
+      <p class="eyebrow"><span class="dot"></span> YOUR EFFORT. OUR CUES.</p>
+      <h1>Your eyes-free<br><em>4×4 interval coach.</em></h1>
+      <p class="intro">VO2Cue is an interval timer for iPhone and Apple Watch. Train with Norwegian 4×4 or custom intervals, guided by haptics, tones, and optional voice cues.</p>
       <div class="actions"><a class="button" href="https://apps.apple.com/us/app/vo2cue/id6804899072"><span>Download on the<br><strong>App Store</strong></span><span class="arrow" aria-hidden="true">↗</span></a><a class="text-link" href="#how-to">See how it works <span aria-hidden="true">↓</span></a></div>
       <p class="small">For iPhone & Apple Watch · Open source · No account required</p>
-      <div class="hero-facts"><div><strong>4 × 4</strong><span>Your classic interval session</span></div><div><strong>Your pace</strong><span>Custom workouts & cues</span></div></div>
+      <div class="hero-facts"><div><strong>4 × 4</strong><span>Norwegian 4×4, ready to go</span></div><div><strong>Your pace</strong><span>Custom workouts & cues</span></div></div>
     </div>
-    <div class="hero-art">
+    <figure class="hero-visual"><div class="hero-art">
       <div class="orbit" aria-hidden="true"></div>
-      <div class="phone"><img src="demo/assets/timer.jpg" width="360" height="780" alt="VO2Cue live timer showing Sprint, round 1 of 4, 3 minutes 54 seconds remaining, and End, Pause, and Skip controls." fetchpriority="high"></div>
-      <div class="watch"><img src="demo/assets/watch.jpg" width="422" height="514" alt="The live interval timer in VO2Cue on Apple Watch."></div>
-      <span class="art-note">A glance when you need it.<br>A cue when you don’t.</span>
-    </div>
+      <div class="phone"><picture><source type="image/webp" srcset="demo/assets/timer-160.webp 160w, demo/assets/timer-240.webp 240w, demo/assets/timer-360.webp 360w" sizes="234px"><img src="demo/assets/timer.jpg" width="360" height="780" alt="VO2Cue live timer showing Sprint, round 1 of 4, 3 minutes 54 seconds remaining, and End, Pause, and Skip controls." fetchpriority="high"></picture></div>
+      <div class="watch"><picture><source type="image/webp" srcset="demo/assets/watch-160.webp 160w, demo/assets/watch-240.webp 240w, demo/assets/watch-360.webp 360w, demo/assets/watch-422.webp 422w" sizes="129px"><img src="demo/assets/watch.jpg" width="422" height="514" alt="The live interval timer in VO2Cue on Apple Watch."></picture></div>
+    </div><figcaption class="art-note">A glance when you need it.<br>A cue when you don’t.</figcaption></figure>
   </section>
   <div class="activity-strip"><div class="wrap"><span>ONE COACH. YOUR KIND OF CARDIO.</span><p>Swim <b>·</b> Run <b>·</b> Cycle <b>·</b> Row <b>·</b> Train</p></div></div>
   <section class="section wrap" id="screenshots">
-    <div class="section-heading"><div><p class="eyebrow">A LOOK INSIDE</p><h2>Simple setup.<br>Clear focus.</h2></div><p>Build the session that fits your day, follow each interval, and keep a record of the work you put in.</p></div>
+    <div class="section-heading"><div><p class="eyebrow">A LOOK INSIDE</p><h2>Custom intervals.<br>Clear workout cues.</h2></div><p>Build the session that fits your day, follow each interval, and keep a record of the work you put in.</p></div>
     <div class="gallery">
-      <figure><div class="screen"><img src="demo/assets/workouts.jpg" width="360" height="780" alt="VO2Cue workout library with saved interval profiles." loading="lazy"></div><figcaption><span>01 / CHOOSE</span><h3>Your workout library</h3><p>Start with the classic 4×4 or keep your own go-to sessions ready.</p></figcaption></figure>
-      <figure><div class="screen"><img src="demo/assets/profile.jpg" width="360" height="780" alt="VO2Cue workout profile with duration, interval settings, and cues." loading="lazy"></div><figcaption><span>02 / MAKE IT YOURS</span><h3>Every interval, your way</h3><p>Set work, recovery, rounds, warmup, cooldown, and the cues you want.</p></figcaption></figure>
-      <figure><div class="screen"><img src="demo/assets/progress.jpg" width="360" height="780" alt="VO2Cue Progress screen with active-minute totals and an eight-week training chart." loading="lazy"></div><figcaption><span>03 / KEEP GOING</span><h3>Progress that stays yours</h3><p>Track your weekly goal, actual active minutes, and eight weeks of training. Partial sessions count too.</p></figcaption></figure>
+      <figure><div class="screen"><picture><source type="image/webp" srcset="demo/assets/workouts-160.webp 160w, demo/assets/workouts-240.webp 240w, demo/assets/workouts-360.webp 360w, demo/assets/workouts-480.webp 480w, demo/assets/workouts-600.webp 600w" sizes="(max-width:650px) calc((100vw - 120px) / 2), (max-width:900px) calc((100vw - 284px) / 3), 258px"><img src="demo/assets/workouts.jpg" width="360" height="780" alt="VO2Cue workout library with saved interval profiles." loading="lazy"></picture></div><figcaption><span>01 / CHOOSE</span><h3>Your workout library</h3><p>Start with the classic 4×4 or keep your own go-to sessions ready.</p></figcaption></figure>
+      <figure><div class="screen"><picture><source type="image/webp" srcset="demo/assets/profile-160.webp 160w, demo/assets/profile-240.webp 240w, demo/assets/profile-360.webp 360w" sizes="(max-width:650px) calc((100vw - 120px) / 2), (max-width:900px) calc((100vw - 284px) / 3), 258px"><img src="demo/assets/profile.jpg" width="360" height="780" alt="VO2Cue workout profile with duration, interval settings, and cues." loading="lazy"></picture></div><figcaption><span>02 / MAKE IT YOURS</span><h3>Every interval, your way</h3><p>Set work, recovery, rounds, warmup, cooldown, and the cues you want.</p></figcaption></figure>
+      <figure><div class="screen"><picture><source type="image/webp" srcset="demo/assets/progress-160.webp 160w, demo/assets/progress-240.webp 240w, demo/assets/progress-360.webp 360w, demo/assets/progress-480.webp 480w, demo/assets/progress-600.webp 600w" sizes="(max-width:650px) calc((100vw - 120px) / 2), (max-width:900px) calc((100vw - 284px) / 3), 258px"><img src="demo/assets/progress.jpg" width="360" height="780" alt="VO2Cue Progress screen with active-minute totals and an eight-week training chart." loading="lazy"></picture></div><figcaption><span>03 / KEEP GOING</span><h3>Progress that stays yours</h3><p>Track your weekly goal, actual active minutes, and eight weeks of training. Partial sessions count too.</p></figcaption></figure>
     </div>
     <p class="caption">Actual app screenshots with example workouts and history.</p>
   </section>
   <section class="section wrap widgets" id="widgets" aria-labelledby="widgets-title">
     <div class="section-heading"><div><p class="eyebrow">YOUR GOAL, AT A GLANCE</p><h2 id="widgets-title">Keep your goal close.<br>Start your next session.</h2></div><p>Your weekly progress belongs on your Home Screen. See the minutes you’ve put in, then get moving with one tap.</p></div>
     <div class="widget-showcase">
-      <figure class="widget-card"><div class="widget-art"><img src="demo/assets/widget-small.png" width="493" height="493" alt="Small VO2Cue widget showing 70 percent of the weekly goal, with 42 of 60 active minutes." loading="lazy"></div><figcaption><span>SMALL / STAY ON TRACK</span><h3>A little reminder of your effort</h3><p>Your active minutes and goal completion in one clear ring. Tap to open Progress.</p></figcaption></figure>
-      <figure class="widget-card"><div class="widget-art"><img src="demo/assets/widget-medium.png" width="1049" height="493" alt="Medium VO2Cue widget showing 42 of 60 active minutes, 70 percent completion, and a Start workout button for Easy 20." loading="lazy"></div><figcaption><span>MEDIUM / READY TO MOVE</span><h3>Progress and your next workout</h3><p>See your weekly goal and start your most recently used phone workout. VO2Cue opens and begins the session.</p></figcaption></figure>
+      <figure class="widget-card"><div class="widget-art"><picture><source type="image/webp" srcset="demo/assets/widget-small-160.webp 160w, demo/assets/widget-small-240.webp 240w, demo/assets/widget-small-360.webp 360w, demo/assets/widget-small-480.webp 480w, demo/assets/widget-small-493.webp 493w" sizes="220px"><img src="demo/assets/widget-small.png" width="493" height="493" alt="Small VO2Cue widget showing 70 percent of the weekly goal, with 42 of 60 active minutes." loading="lazy"></picture></div><figcaption><span>SMALL / STAY ON TRACK</span><h3>A little reminder of your effort</h3><p>Your active minutes and goal completion in one clear ring. Tap to open Progress.</p></figcaption></figure>
+      <figure class="widget-card"><div class="widget-art"><picture><source type="image/webp" srcset="demo/assets/widget-medium-160.webp 160w, demo/assets/widget-medium-240.webp 240w, demo/assets/widget-medium-360.webp 360w, demo/assets/widget-medium-480.webp 480w, demo/assets/widget-medium-640.webp 640w, demo/assets/widget-medium-960.webp 960w, demo/assets/widget-medium-1049.webp 1049w" sizes="(max-width:650px) calc(100vw - 106px), 468px"><img src="demo/assets/widget-medium.png" width="1049" height="493" alt="Medium VO2Cue widget showing 42 of 60 active minutes, 70 percent completion, and a Start workout button for Easy 20." loading="lazy"></picture></div><figcaption><span>MEDIUM / READY TO MOVE</span><h3>Progress and your next workout</h3><p>See your weekly goal and start your most recently used phone workout. VO2Cue opens and begins the session.</p></figcaption></figure>
     </div>
-    <div class="widget-how"><div><h3>Add VO2Cue to your Home Screen</h3><p>Touch and hold your Home Screen, open the widget gallery, and search for <strong>VO2Cue</strong>. Choose <strong>Weekly goal</strong> in small or medium size. Your saved goal and sessions keep the widget up to date, and a checkmark celebrates reaching your goal.</p></div><figure class="widget-achievement"><img src="demo/assets/widget-complete.png" width="493" height="493" alt="VO2Cue widget with a checkmark and Goal met, showing 42 of a personal goal of 40 active minutes." loading="lazy"><figcaption>A goal met. A fresh start next week.</figcaption></figure></div>
+    <div class="widget-how"><div><h3>Add VO2Cue to your Home Screen</h3><p>Touch and hold your Home Screen, open the widget gallery, and search for <strong>VO2Cue</strong>. Choose <strong>Weekly goal</strong> in small or medium size. Your saved goal and sessions keep the widget up to date, and a checkmark celebrates reaching your goal.</p></div><figure class="widget-achievement"><picture><source type="image/webp" srcset="demo/assets/widget-complete-160.webp 160w, demo/assets/widget-complete-240.webp 240w, demo/assets/widget-complete-360.webp 360w, demo/assets/widget-complete-480.webp 480w, demo/assets/widget-complete-493.webp 493w" sizes="160px"><img src="demo/assets/widget-complete.png" width="493" height="493" alt="VO2Cue widget with a checkmark and Goal met, showing 42 of a personal goal of 40 active minutes." loading="lazy"></picture><figcaption>A goal met. A fresh start next week.</figcaption></figure></div>
     <p class="caption">Actual widgets captured on iPhone with example workouts. New sessions, including early finishes, contribute actual active time. Purchase access and onboarding apply when starting a workout.</p>
   </section>
   <section class="guide" id="how-to"><div class="wrap guide-grid">
-    <div><p class="eyebrow">YOUR FIRST SESSION</p><h2>Ready in<br>a few taps.</h2><p class="guide-intro">Set it up on your iPhone. Train with your phone or start a session from your Apple Watch.</p><div class="recipe"><span>THE CLASSIC 4×4</span><strong>10 min warmup</strong><p>4 min hard effort + 3 min recovery between efforts, for 4 rounds.</p><small>35 minutes total · Optional cooldown</small></div></div>
-    <ol class="steps">
+    <div><p class="eyebrow">YOUR FIRST SESSION</p><h2>Ready in<br>a few taps.</h2><p class="guide-intro">Set it up on your iPhone. Train with your phone or start a session from your Apple Watch.</p><div class="recipe"><span>THE NORWEGIAN 4×4</span><strong>10 min warmup</strong><p>4 min hard effort + 3 min recovery between efforts, for 4 rounds.</p><small>35 minutes total · Optional cooldown</small></div></div>
+    <ol class="steps" role="list">
       <li><h3>Choose or create a workout</h3><p>Open the Workouts tab and select a profile. Tap the <strong>+</strong> button to create one, or open a saved workout and tap <strong>Edit</strong>.</p></li>
       <li><h3>Set your intervals and cues</h3><p>Choose your activity, work and recovery durations, repeat count, warmup, and cooldown. Enable haptics, tones, or voice cues and customize the cue labels.</p></li>
       <li><h3>Start and follow the cues</h3><p>Tap <strong>Start workout</strong> on the workout detail screen. On Apple Watch, open VO2Cue and choose a workout; profiles sync from your iPhone when connected. Use <strong>Pause</strong>, resume, <strong>Skip</strong>, or <strong>End</strong> as needed.</p></li>
       <li><h3>Review your session</h3><p>Open <strong>Progress</strong> after your workout to review actual active minutes, your weekly goal, and recent sessions. To also save completed workouts to Apple Health, open <strong>Settings</strong>, enable <strong>Save completed workouts</strong>, and tap <strong>Request Health access</strong>.</p></li>
     </ol>
   </div></section>
+  <section class="section wrap product-details" id="details" aria-labelledby="details-title">
+    <div class="section-heading"><div><p class="eyebrow">KNOW YOUR COACH</p><h2 id="details-title">Built for your intervals.<br>Private by design.</h2></div><p>Clear cues for swimming, running, cycling, rowing, and gym cardio. Set your session, follow the cues, and review the work you put in.</p></div>
+    <dl class="product-facts">
+      <div><dt>iPhone</dt><dd>iOS 17 or later</dd></div>
+      <div><dt>Apple Watch</dt><dd>watchOS 10 or later</dd></div>
+      <div><dt>Apple Health</dt><dd>Optional workout saving</dd></div>
+      <div><dt>Your data</dt><dd>No account, ads, or tracking</dd></div>
+    </dl>
+    <p class="store-rating"><a href="https://apps.apple.com/us/app/vo2cue/id6804899072">US App Store rating: <strong>5.0 out of 5 from 2 ratings</strong></a>. Checked <time datetime="2026-10-19">October 19, 2026</time>.</p>
+    <div class="faq-heading"><p class="eyebrow">BEFORE YOUR FIRST SESSION</p><h2 id="questions-title">Questions, answered.</h2></div>
+    <div class="faq-list" aria-labelledby="questions-title">
+      <div><h3>What is VO2Cue?</h3><p>VO2Cue is an eyes-free interval timer for iPhone and Apple Watch. It combines a built-in Norwegian 4×4 workout, custom interval profiles, haptics, tones, and optional voice cues with private progress tracking. Use it when checking a screen would interrupt your workout.</p></div>
+      <div><h3>How long is the Norwegian 4×4 workout?</h3><p>The built-in session takes <strong>35 minutes before an optional cooldown</strong>: a 10-minute warmup, four 4-minute work intervals, and three 3-minute recoveries between work intervals. You choose your effort; VO2Cue handles the timing and phase changes.</p></div>
+      <div><h3>Can I create other interval workouts?</h3><p>Yes. Create and save profiles with your own work and recovery durations, number of rounds, warmup, optional cooldown, activity type, countdown, and cue labels. Choose haptics, tones, voice cues, and halfway cues to suit your session.</p></div>
+      <div><h3>Can I train with Apple Watch without holding my iPhone?</h3><p>Yes. Open VO2Cue on Apple Watch to start, pause, resume, skip, or end a session from your wrist. Set up and customize profiles on iPhone, then let them sync to your watch while the devices are connected. Once your profile and purchase access are available on the watch, you can run the session there without holding your phone.</p></div>
+      <div><h3>Does VO2Cue work offline?</h3><p>The core interval timer and local workout history do not need an internet connection or a VO2Cue account. Downloading the app, completing or restoring purchases, and sending optional feedback need a connection. Custom profile transfers between iPhone and Apple Watch depend on the devices being able to connect.</p></div>
+      <div><h3>Can I lock my iPhone or listen to music?</h3><p>Enable <strong>tones or voice cues</strong> for a phone workout to keep scheduled audio cues playing with the screen locked. Workout audio mixes with music from other apps. A call or an audio interruption can pause the session; reopen VO2Cue and resume when ready. With both tones and voice disabled, keep the app open for reliable phase updates.</p></div>
+      <div><h3>Do I need to share my health data?</h3><p>No. Apple Health access is optional. You can use the timer and local history without granting it. With permission, Apple Watch can show live heart rate during a workout and VO2Cue can save completed workouts to Apple Health. Profiles and VO2Cue history stay on your devices. Read the <a href="privacy/">privacy policy</a> for details.</p></div>
+      <div><h3>What does VO2Cue cost?</h3><p>The US App Store currently lists a <strong>$1.99 download</strong>, plus in-app purchase options for a <strong>$1.99 monthly membership</strong> and <strong>$19.99 lifetime access</strong>. Existing paid-app buyers retain lifetime access. Prices and available options may vary by region and app version; check the <a href="https://apps.apple.com/us/app/vo2cue/id6804899072">App Store listing</a> and purchase screen before buying.</p><p class="small">US pricing checked <time datetime="2026-10-19">October 19, 2026</time>. Open-source availability and the contributor reward are separate from App Store pricing.</p></div>
+    </div>
+    <p class="developer-note">Created by <a href="https://github.com/GreggRoll">Greg Adams (Gregory Colton Adams)</a>. Product information updated <time datetime="2026-10-19">October 19, 2026</time>. Need help? <a href="https://github.com/GreggRoll/VO2Cue/issues">Visit VO2Cue support</a>.</p>
+  </section>
   <section class="section wrap contribute" id="contribute" aria-labelledby="contribute-title">
     <div class="section-heading"><div><p class="eyebrow">OPEN SOURCE. OPEN TO YOUR IDEAS.</p><h2 id="contribute-title">Help build VO2Cue.<br>Get a lifetime thank-you.</h2></div><p>VO2Cue is open source under the <a class="text-link" href="https://github.com/GreggRoll/VO2Cue/blob/main/LICENSE">MIT License</a>. Everyone is welcome to help with bug fixes, new features, accessibility, documentation, and tests.</p></div>
     <div class="contributor-reward">
@@ -77,6 +188,6 @@
   </section>
   <section class="closing wrap"><p class="eyebrow">LESS CLOCK-WATCHING. MORE TRAINING.</p><h2>Make your next<br>session count.</h2><p>No account. No ads. No tracking.<br>Your profiles and VO2Cue history stay on your devices.</p><a class="button" href="https://apps.apple.com/us/app/vo2cue/id6804899072"><span>Download on the<br><strong>App Store</strong></span><span class="arrow" aria-hidden="true">↗</span></a></section>
 </main>
-<footer class="wrap"><a class="brand" href="./">VO2Cue</a><p>Your effort. Our cues.</p><nav aria-label="Footer"><a href="privacy">Privacy policy</a><a href="https://github.com/GreggRoll/VO2Cue/issues">Support</a><a href="https://github.com/GreggRoll/VO2Cue">GitHub</a></nav></footer>
+<footer class="wrap"><a class="brand" href="./">VO2Cue</a><p>Your effort. Our cues.</p><nav aria-label="Footer"><a href="privacy/">Privacy policy</a><a href="#details">App details &amp; FAQ</a><a href="https://github.com/GreggRoll/VO2Cue/issues">Support</a><a href="https://github.com/GreggRoll/VO2Cue">GitHub</a></nav></footer>
 </body>
 </html>
