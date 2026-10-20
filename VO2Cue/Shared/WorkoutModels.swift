@@ -44,7 +44,7 @@ enum WorkoutActivity: String, CaseIterable, Codable, Identifiable, Sendable {
 struct CueSettings: Codable, Equatable, Sendable {
     var hapticsEnabled: Bool = true
     var tonesEnabled: Bool = true
-    var voiceEnabled: Bool = false
+    var voiceEnabled: Bool = true
     var halfwayCueEnabled: Bool = true
 }
 

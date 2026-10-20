@@ -1,8 +1,12 @@
-HEART SYNC PREVIEW — version 1.2, build 8
+HEART SYNC PREVIEW — version 1.2, build 9
 
-Install build 8 on BOTH iPhone and Apple Watch.
+Install build 9 on BOTH iPhone and Apple Watch.
 
-FIXES IN THIS BUILD
+NEW IN BUILD 9
+• Spoken cues are enabled by default for newly created workouts, templates, the initial Norwegian 4×4 profile and Heart Sync Check on iPhone and Apple Watch.
+• Existing saved workout settings are preserved, including Spoken cues switched off. To hear cues in an existing workout, edit its profile and enable Spoken cues.
+
+INCLUDED FROM BUILD 8
 • Recovery below the lower target now says Heart rate up. Heart rate good is reserved for readings within the target range, including its boundaries, in both hard and recovery intervals.
 • Range status, meter and halfway cues now agree with the current rounded BPM displayed on screen, instead of an older trend. Stale and paused samples still suppress heart-rate cues.
 • Removed Keep recovery easy, Build gradually toward your target, and the ten-second trend explanation. Ongoing deviation cues also use Heart rate up/down.
