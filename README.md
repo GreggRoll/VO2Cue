@@ -190,6 +190,10 @@ A Live Activity displays the workout name, phase, round, next phase, and system-
 
 Add the **Weekly goal** widget from the Home Screen widget gallery in small or medium size. Both sizes show active minutes, goal completion, and a progress ring. Tap the progress area to open Progress. The medium widget also shows the most recently started phone workout (or the first saved workout before one has been started); **Start workout** opens VO2Cue and starts that profile after onboarding and purchase access are verified. It keeps an existing workout running. Goal edits, saved phone/Watch sessions, history deletion, and profile changes refresh the widget, and the week resets using the local calendar.
 
-The iPhone app and widget extension share `group.com.gregadams.vo2cue`. Enable this App Group for both bundle IDs in the Apple Developer account and include it in their provisioning profiles before a device or TestFlight build. The existing manual widget distribution profile must be regenerated with this entitlement.
+The iPhone app and widget extension share `group.com.gregadams.vo2cue.shared`. Enable this App Group for both bundle IDs in the Apple Developer account and include it in their provisioning profiles before a device or TestFlight build. The existing manual widget distribution profile must be regenerated with this entitlement.
 
 Before release, test on a physical iPhone without a debugger: lock during a long warmup, listen through halfway/countdown/phase changes and completion, repeat with voice only and tones only, and check pause/resume/skip, music mixing, headphones disconnecting, and a phone call. Simulator checks cannot establish real-device locked-screen audio reliability.
+
+## Heart Sync Preview (1.2)
+
+The `heart-sync` branch adds opt-in, phase-aware Apple Watch heart-rate guidance and a live iPhone companion using HealthKit workout mirroring. Set a confirmed maximum or custom BPM ranges, enable guidance in a profile, and start with Apple Watch. Settings includes Heart Sync Preview diagnostics and a short test profile. Existing phone timers remain available. See [Heart Sync testing](docs/heart-sync-testing.md) for setup, behavior, validation and the physical-device checklist.

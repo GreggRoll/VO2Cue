@@ -2,6 +2,45 @@
 
 All notable VO2Cue changes are documented here.
 
+## 1.2 (6) — Heart Sync Preview
+
+- Added opt-in hard/recovery heart-rate targets, a confirmed personal maximum, and per-profile BPM overrides.
+- Added a timer-first iPhone heart-rate card and compact Watch status, with freshness, transition grace, trend classification and optional coaching cues.
+- Added Watch-owned HealthKit workout mirroring, acknowledged phone controls, bounded message delivery, reconnection snapshots and Watch session recovery.
+- Coordinated Watch pause/resume with HealthKit and prevented duplicate Health saves from the iPhone mirror.
+- Added Heart Sync Preview diagnostics, a 6½-minute test profile, and a dedicated internal TestFlight testing group.
+- Preserved legacy profiles/history and phone-only workout behavior. Physical sensor and connectivity validation remains a TestFlight task.
+
+## Unreleased — Consistency and progress
+
+### Added
+
+- Editable weekly active-minute goals and an eight-week Progress chart, with partial sessions included.
+- Small and medium Home Screen widgets show weekly goal progress and completion; the medium widget starts the most recently used phone workout.
+- Previewable Norwegian 4×4, Short Intervals, and Easy 20 templates that become editable workout profiles.
+- iPhone and Watch summaries with actual training time, phase totals, and skipped-phase counts.
+- Optional local effort ratings and workout notes, editable from Progress.
+- Optional weekday reminders at a chosen local time, with permission requested only when enabled and navigation to Workouts on tap.
+
+### Changed
+
+- Replaced the History tab with Progress while preserving history and deletion controls.
+- Kept legacy workout entries readable and labeled their duration as recorded time; excluded them from new goals and charts.
+- Used Hard for newly created interval profiles and preserved existing saved cue labels.
+- Removed the follow-up roadmap from the release scope.
+
+### Fixed
+
+- Separated actual training time from timeline position so skipping a phase does not add training minutes.
+- Capped delayed natural completion at its scheduled finish and retained phase-level time through pause/resume and early endings.
+- Read stored and launch-supplied Health saving preferences consistently as booleans.
+
+### Validation
+
+- Passed all 45 unit tests, including existing purchase tests, on iOS 17.5.
+- Verified all ten UI scenarios on iOS 26.3 across the full run and corrected reruns, including largest accessibility text and persisted workout notes.
+- Passed unsigned iPhone/Watch Release builds. Physical-device and TestFlight checks remain documented in `docs/next-release-validation.md`.
+
 ## 1.0 (2) — 2026-08-28
 
 ### Fixed

@@ -20,12 +20,18 @@ struct WorkoutRuntimeView: View {
             }
             .toolbar(.hidden, for: .navigationBar)
             .confirmationDialog("End this workout?", isPresented: $confirmEnd) {
-                Button("End workout", role: .destructive) { runtime.end() }
+                Button("End workout", role: .destructive) { model.controlWorkout(.end) }
                 Button("Keep going", role: .cancel) { }
             } message: {
                 Text("The elapsed portion will remain in your local history.")
             }
         }
+        .alert("Workout", isPresented: Binding(
+            get: { model.workoutErrorMessage != nil },
+            set: { if !$0 { model.workoutErrorMessage = nil } }
+        )) {
+            Button("OK") { model.workoutErrorMessage = nil }
+        } message: { Text(model.workoutErrorMessage ?? "") }
         .interactiveDismissDisabled(runtime.status == .running || runtime.status == .paused)
         .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
         .onDisappear { UIApplication.shared.isIdleTimerDisabled = false }
@@ -34,19 +40,40 @@ struct WorkoutRuntimeView: View {
 }
 
 private struct ActiveWorkoutView: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Bindable var runtime: WorkoutRuntime
     @Binding var confirmEnd: Bool
 
     var body: some View {
-        VStack(spacing: 22) {
-            WorkoutPhaseHeader(phase: runtime.snapshot.phase)
-            Spacer(minLength: 0)
-            WorkoutTimerReadout(snapshot: runtime.snapshot)
-            Spacer(minLength: 0)
-            NextPhaseView(nextPhase: runtime.nextPhase)
-            WorkoutControls(runtime: runtime, confirmEnd: $confirmEnd)
+        ScrollView {
+            VStack(spacing: 22) {
+                WorkoutPhaseHeader(phase: runtime.snapshot.phase)
+                WorkoutTimerReadout(snapshot: runtime.snapshot)
+                if !runtime.isMirrored {
+                    ProgressView(value: runtime.snapshot.progress)
+                        .tint(.primary).accessibilityLabel("Phase progress")
+                }
+                if runtime.isMirrored || runtime.profile.heartRateGuidance?.enabled == true {
+                    HeartRateCard(feed: model.workoutMirror.heartRate, runtime: runtime)
+                }
+                RuntimeIntervalGraph(runtime: runtime)
+                if runtime.isMirrored {
+                    MirrorControlStatus(feed: model.workoutMirror.heartRate)
+                }
+                if dynamicTypeSize.isAccessibilitySize {
+                    NextPhaseView(nextPhase: runtime.nextPhase)
+                }
+            }.padding()
         }
-        .padding()
+        .safeAreaInset(edge: .bottom) {
+            VStack(spacing: 14) {
+                if !dynamicTypeSize.isAccessibilitySize {
+                    NextPhaseView(nextPhase: runtime.nextPhase)
+                }
+                WorkoutControls(runtime: runtime, confirmEnd: $confirmEnd)
+            }.padding().background(.bar)
+        }
         .background(phaseBackground.ignoresSafeArea())
     }
 
@@ -91,11 +118,6 @@ private struct WorkoutTimerReadout: View {
                 .accessibilityLabel("Time remaining")
                 .accessibilityValue(snapshot.remainingSeconds.timerText)
 
-            ProgressView(value: snapshot.progress)
-                .tint(.primary)
-                .accessibilityLabel("Phase progress")
-                .accessibilityValue(Text(snapshot.progress, format: .percent.precision(.fractionLength(0))))
-
             Text("Total remaining \(snapshot.totalRemainingSeconds.timerText)")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -126,6 +148,8 @@ private struct NextPhaseView: View {
 }
 
 private struct WorkoutControls: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Bindable var runtime: WorkoutRuntime
     @Binding var confirmEnd: Bool
 
@@ -134,19 +158,53 @@ private struct WorkoutControls: View {
             Button("End", systemImage: "xmark") { confirmEnd = true }
                 .buttonStyle(.bordered)
                 .tint(.red)
+                .accessibilityLabel("End")
 
             Button {
-                runtime.status == .paused ? runtime.resume() : runtime.pause()
+                model.controlWorkout(runtime.status == .paused ? .resume : .pause)
             } label: {
                 Label(runtime.status == .paused ? "Resume" : "Pause", systemImage: runtime.status == .paused ? "play.fill" : "pause.fill")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
+            .accessibilityLabel(runtime.status == .paused ? "Resume" : "Pause")
 
-            Button("Skip", systemImage: "forward.end.fill") { runtime.skip() }
+            Button("Skip", systemImage: "forward.end.fill") { model.skipPhase() }
                 .buttonStyle(.bordered)
+                .accessibilityLabel("Skip")
         }
         .controlSize(.large)
+        .labelStyle(WorkoutControlLabelStyle(compact: dynamicTypeSize.isAccessibilitySize))
+        .disabled(runtime.isMirrored && (!model.workoutMirror.heartRate.isConnected || model.workoutMirror.heartRate.pendingCommand))
+    }
+}
+
+private struct WorkoutControlLabelStyle: LabelStyle {
+    let compact: Bool
+    func makeBody(configuration: Configuration) -> some View {
+        if compact {
+            configuration.icon
+                .font(.title2)
+                .frame(minWidth: 44, minHeight: 44)
+        } else {
+            HStack { configuration.icon; configuration.title }
+        }
+    }
+}
+
+private struct MirrorControlStatus: View {
+    let feed: HeartRateFeed
+    var body: some View {
+        VStack(spacing: 6) {
+            if feed.pendingCommand {
+                ProgressView("Waiting for Watch confirmation…").font(.caption)
+            }
+            if let message = feed.lastCommandMessage {
+                Text(message).font(.caption).foregroundStyle(.secondary)
+            }
+            NavigationLink("Sync diagnostics") { HeartSyncDiagnostics(feed: feed).padding() }
+                .font(.caption)
+        }
     }
 }
 
@@ -155,26 +213,38 @@ private struct WorkoutCompletionView: View {
     let done: () -> Void
 
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
-            Image(systemName: runtime.status == .completed ? "checkmark.circle.fill" : "stop.circle.fill")
-                .font(.system(size: 72))
-                .foregroundStyle(runtime.status == .completed ? .green : .orange)
-                .accessibilityHidden(true)
-            Text(runtime.status == .completed ? "Workout complete" : "Workout ended")
-                .font(.largeTitle.bold())
-            Text(runtime.elapsedSeconds.timerText)
-                .font(.system(.title, design: .rounded, weight: .semibold))
-                .monospacedDigit()
-            Text(runtime.profile.name)
-                .foregroundStyle(.secondary)
-            Spacer()
-            Button("Done", action: done)
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .frame(maxWidth: .infinity)
+        ScrollView {
+            VStack(spacing: 24) {
+                Image(systemName: runtime.status == .completed ? "checkmark.circle.fill" : "stop.circle.fill")
+                    .font(.system(size: 72))
+                    .foregroundStyle(runtime.status == .completed ? .green : .orange)
+                    .accessibilityHidden(true)
+                Text(runtime.status == .completed ? "Workout complete" : "Workout ended")
+                    .font(.largeTitle.bold())
+                Text(runtime.actualActiveSeconds.timerText)
+                    .font(.system(.title, design: .rounded, weight: .semibold))
+                    .monospacedDigit()
+                    .accessibilityIdentifier("completedActualDuration")
+                Text(runtime.profile.name).foregroundStyle(.secondary)
+                if let record = runtime.finishedRecord() {
+                    RuntimeIntervalGraph(runtime: runtime)
+                    WorkoutSummaryDetails(record: record)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    WorkoutReflectionView(recordID: record.id)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            .padding()
+            .accessibilityElement(children: .contain)
         }
-        .padding()
-        .accessibilityElement(children: .contain)
+        .safeAreaInset(edge: .bottom) {
+            Button(action: done) {
+                Text("Done").frame(maxWidth: .infinity).padding(.vertical, 4)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .padding()
+            .background(.bar)
+        }
     }
 }

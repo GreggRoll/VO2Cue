@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		AB0000000000000000000001 /* VO2CueWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000012 /* VO2CueWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+BB0000000000000000000001 = {isa = PBXBuildFile; fileRef = BB0000000000000000000002; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -25,6 +26,7 @@
 			remoteGlobalIDString = AA0000000000000000000041;
 			remoteInfo = VO2Cue;
 		};
+BB0000000000000000000003 = {isa = PBXContainerItemProxy; containerPortal = AA0000000000000000000030; proxyType = 1; remoteGlobalIDString = BB0000000000000000000010; remoteInfo = VO2CueWidgets; };
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -39,6 +41,7 @@
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+BB0000000000000000000005 = {isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = ""; dstSubfolderSpec = 13; files = (BB0000000000000000000001, ); name = "Embed App Extensions"; runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -46,12 +49,14 @@
 		AA0000000000000000000012 /* VO2CueWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VO2CueWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000000000000000000013 /* VO2CueTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VO2CueTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000000000000000000014 /* VO2CueUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VO2CueUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+BB0000000000000000000002 = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; path = VO2CueWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		AA0000000000000000000021 /* Exceptions for VO2CueApp */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+                Info.plist,
 				VO2Cue.entitlements,
 			);
 			target = AA0000000000000000000041 /* VO2Cue */;
@@ -64,6 +69,7 @@
 			);
 			target = AA0000000000000000000042 /* VO2CueWatch */;
 		};
+BB0000000000000000000006 = {isa = PBXFileSystemSynchronizedBuildFileExceptionSet; membershipExceptions = (Info.plist, VO2CueWidgets.entitlements, ); target = BB0000000000000000000010; };
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -98,6 +104,9 @@
 			path = VO2Cue/VO2CueUITests;
 			sourceTree = "<group>";
 		};
+BB0000000000000000000007 = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (BB0000000000000000000006, ); path = VO2Cue/VO2CueWidgets; sourceTree = "<group>"; };
+BB0000000000000000000008 = {isa = PBXFileSystemSynchronizedRootGroup; path = VO2Cue/LiveActivityShared; sourceTree = "<group>"; };
+CC0000000000000000000001 /* WidgetShared */ = {isa = PBXFileSystemSynchronizedRootGroup; path = VO2Cue/WidgetShared; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,12 +114,16 @@
 		AA0000000000000000000065 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		AA0000000000000000000068 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		AA0000000000000000000070 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+BB0000000000000000000012 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		AA0000000000000000000001 = {
 			isa = PBXGroup;
 			children = (
+                BB0000000000000000000007,
+                BB0000000000000000000008,
+                CC0000000000000000000001 /* WidgetShared */,
 				AA0000000000000000000003 /* Shared */,
 				AA0000000000000000000004 /* VO2CueApp */,
 				AA0000000000000000000005 /* VO2CueWatch */,
@@ -123,6 +136,7 @@
 		AA0000000000000000000002 /* Products */ = {
 			isa = PBXGroup;
 			children = (
+                BB0000000000000000000002,
 				AA0000000000000000000011 /* VO2Cue.app */,
 				AA0000000000000000000012 /* VO2CueWatch.app */,
 				AA0000000000000000000013 /* VO2CueTests.xctest */,
@@ -142,14 +156,18 @@
 				AA0000000000000000000061 /* Frameworks */,
 				AA0000000000000000000062 /* Resources */,
 				AA0000000000000000000064 /* Embed Watch Content */,
+                BB0000000000000000000005,
 			);
 			buildRules = ();
 			dependencies = (
 				AA0000000000000000000050 /* PBXTargetDependency */,
+                BB0000000000000000000004,
 			);
 			fileSystemSynchronizedGroups = (
 				AA0000000000000000000003 /* Shared */,
 				AA0000000000000000000004 /* VO2CueApp */,
+                BB0000000000000000000008,
+                CC0000000000000000000001 /* WidgetShared */,
 			);
 			name = VO2Cue;
 			packageProductDependencies = ();
@@ -186,10 +204,11 @@
 				AA0000000000000000000069 /* Resources */,
 			);
 			buildRules = ();
-			dependencies = ();
+			dependencies = (AA0000000000000000000052 /* VO2Cue test host */, );
 			fileSystemSynchronizedGroups = (
 				AA0000000000000000000003 /* Shared */,
 				AA0000000000000000000006 /* VO2CueTests */,
+                CC0000000000000000000001 /* WidgetShared */,
 			);
 			name = VO2CueTests;
 			packageProductDependencies = ();
@@ -218,6 +237,7 @@
 			productReference = AA0000000000000000000014 /* VO2CueUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+BB0000000000000000000010 = {isa = PBXNativeTarget; buildConfigurationList = BB0000000000000000000014; buildPhases = (BB0000000000000000000011, BB0000000000000000000012, BB0000000000000000000013, ); buildRules = (); dependencies = (); fileSystemSynchronizedGroups = (BB0000000000000000000007, BB0000000000000000000008, CC0000000000000000000001, ); name = VO2CueWidgets; productName = VO2CueWidgets; productReference = BB0000000000000000000002; productType = "com.apple.product-type.app-extension"; };
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -228,7 +248,8 @@
 				LastSwiftUpdateCheck = 2630;
 				LastUpgradeCheck = 2630;
 				TargetAttributes = {
-					AA0000000000000000000041 = {CreatedOnToolsVersion = 26.3; SystemCapabilities = {com.apple.HealthKit = {enabled = 1; }; }; };
+					AA0000000000000000000041 = {CreatedOnToolsVersion = 26.3; SystemCapabilities = {com.apple.HealthKit = {enabled = 1; }; com.apple.ApplicationGroups.iOS = {enabled = 1; }; }; };
+                    BB0000000000000000000010 = {CreatedOnToolsVersion = 26.3; SystemCapabilities = {com.apple.ApplicationGroups.iOS = {enabled = 1; }; }; };
 					AA0000000000000000000042 = {CreatedOnToolsVersion = 26.3; SystemCapabilities = {com.apple.HealthKit = {enabled = 1; }; }; };
 					AA0000000000000000000043 = {CreatedOnToolsVersion = 26.3; };
 					AA0000000000000000000044 = {CreatedOnToolsVersion = 26.3; TestTargetID = AA0000000000000000000041; };
@@ -245,6 +266,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+                BB0000000000000000000010,
 				AA0000000000000000000041 /* VO2Cue */,
 				AA0000000000000000000042 /* VO2CueWatch */,
 				AA0000000000000000000043 /* VO2CueTests */,
@@ -258,6 +280,7 @@
 		AA0000000000000000000066 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		AA0000000000000000000069 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		AA0000000000000000000077 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+BB0000000000000000000013 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -265,6 +288,7 @@
 		AA0000000000000000000063 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		AA0000000000000000000067 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		AA0000000000000000000076 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+BB0000000000000000000011 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -278,6 +302,8 @@
 			target = AA0000000000000000000041 /* VO2Cue */;
 			targetProxy = AA0000000000000000000024 /* PBXContainerItemProxy */;
 		};
+BB0000000000000000000004 = {isa = PBXTargetDependency; target = BB0000000000000000000010; targetProxy = BB0000000000000000000003; };
+AA0000000000000000000052 /* VO2Cue test host */ = {isa = PBXTargetDependency; target = AA0000000000000000000041; targetProxy = AA0000000000000000000024; };
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -398,11 +424,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = VO2Cue/VO2CueApp/VO2Cue.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = J3YZVWSX7K;
 				DEVELOPMENT_ASSET_PATHS = "";
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = VO2Cue;
+				INFOPLIST_FILE = VO2Cue/VO2CueApp/Info.plist;
+                INFOPLIST_KEY_CFBundleDisplayName = VO2Cue;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "VO2Cue reads workout data you choose to share so your completed sessions work with Apple Health.";
@@ -411,7 +438,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gregadams.vo2cue;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -431,10 +458,11 @@
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_ENTITLEMENTS = VO2Cue/VO2CueApp/VO2Cue.entitlements;
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = J3YZVWSX7K;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = VO2Cue;
+				INFOPLIST_FILE = VO2Cue/VO2CueApp/Info.plist;
+                INFOPLIST_KEY_CFBundleDisplayName = VO2Cue;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "VO2Cue reads workout data you choose to share so your completed sessions work with Apple Health.";
@@ -443,10 +471,10 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gregadams.vo2cue;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "VO2Cue App Store 20260825014428";
+				PROVISIONING_PROFILE_SPECIFIER = "VO2Cue App Store Shared 20261012";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -463,11 +491,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = VO2Cue/VO2CueWatch/VO2CueWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = J3YZVWSX7K;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = VO2Cue/VO2CueWatch/Info.plist;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gregadams.vo2cue.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -488,11 +516,11 @@
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_ENTITLEMENTS = VO2Cue/VO2CueWatch/VO2CueWatch.entitlements;
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = J3YZVWSX7K;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = VO2Cue/VO2CueWatch/Info.plist;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gregadams.vo2cue.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "VO2Cue Watch App Store 20260825014428";
@@ -509,7 +537,7 @@
 		AA0000000000000000000087 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "";
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -519,14 +547,14 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VO2Cue.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VO2Cue";
 			};
 			name = Debug;
 		};
 		AA0000000000000000000088 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "";
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -536,7 +564,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VO2Cue.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VO2Cue";
 			};
 			name = Release;
 		};
@@ -572,6 +600,48 @@
 			};
 			name = Release;
 		};
+BB0000000000000000000015 = {isa = XCBuildConfiguration; buildSettings = {
+APPLICATION_EXTENSION_API_ONLY = YES;
+CODE_SIGN_ENTITLEMENTS = VO2Cue/VO2CueWidgets/VO2CueWidgets.entitlements;
+CODE_SIGN_STYLE = Automatic;
+CURRENT_PROJECT_VERSION = 10;
+DEVELOPMENT_TEAM = J3YZVWSX7K;
+GENERATE_INFOPLIST_FILE = YES;
+INFOPLIST_FILE = VO2Cue/VO2CueWidgets/Info.plist;
+INFOPLIST_KEY_CFBundleDisplayName = "VO2Cue Workout";
+IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", );
+MARKETING_VERSION = 1.2;
+PRODUCT_BUNDLE_IDENTIFIER = com.gregadams.vo2cue.widgets;
+PRODUCT_NAME = "$(TARGET_NAME)";
+SDKROOT = iphoneos;
+SKIP_INSTALL = YES;
+SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+SWIFT_VERSION = 5.0;
+TARGETED_DEVICE_FAMILY = "1,2";
+}; name = Debug; };
+BB0000000000000000000016 = {isa = XCBuildConfiguration; buildSettings = {
+APPLICATION_EXTENSION_API_ONLY = YES;
+CODE_SIGN_ENTITLEMENTS = VO2Cue/VO2CueWidgets/VO2CueWidgets.entitlements;
+CODE_SIGN_STYLE = Manual;
+CODE_SIGN_IDENTITY = "Apple Distribution";
+PROVISIONING_PROFILE_SPECIFIER = "VO2Cue Widgets App Store 20261012";
+CURRENT_PROJECT_VERSION = 10;
+DEVELOPMENT_TEAM = J3YZVWSX7K;
+GENERATE_INFOPLIST_FILE = YES;
+INFOPLIST_FILE = VO2Cue/VO2CueWidgets/Info.plist;
+INFOPLIST_KEY_CFBundleDisplayName = "VO2Cue Workout";
+IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", );
+MARKETING_VERSION = 1.2;
+PRODUCT_BUNDLE_IDENTIFIER = com.gregadams.vo2cue.widgets;
+PRODUCT_NAME = "$(TARGET_NAME)";
+SDKROOT = iphoneos;
+SKIP_INSTALL = YES;
+SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+SWIFT_VERSION = 5.0;
+TARGETED_DEVICE_FAMILY = "1,2";
+}; name = Release; };
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -580,6 +650,7 @@
 		AA0000000000000000000073 /* Build configuration list for PBXNativeTarget "VO2CueWatch" */ = {isa = XCConfigurationList; buildConfigurations = (AA0000000000000000000085 /* Debug */, AA0000000000000000000086 /* Release */, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 		AA0000000000000000000074 /* Build configuration list for PBXNativeTarget "VO2CueTests" */ = {isa = XCConfigurationList; buildConfigurations = (AA0000000000000000000087 /* Debug */, AA0000000000000000000088 /* Release */, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 		AA0000000000000000000075 /* Build configuration list for PBXNativeTarget "VO2CueUITests" */ = {isa = XCConfigurationList; buildConfigurations = (AA0000000000000000000089 /* Debug */, AA0000000000000000000090 /* Release */, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+BB0000000000000000000014 = {isa = XCConfigurationList; buildConfigurations = (BB0000000000000000000015, BB0000000000000000000016, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 /* End XCConfigurationList section */
 	};
 	rootObject = AA0000000000000000000030 /* Project object */;

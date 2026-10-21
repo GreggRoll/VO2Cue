@@ -1,15 +1,19 @@
 from __future__ import annotations
 
+import argparse
 from pathlib import Path
 from typing import Iterable
+from zipfile import ZIP_DEFLATED, ZipFile
 
-from PIL import Image, ImageChops, ImageDraw, ImageEnhance, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 
 
 ROOT = Path(__file__).resolve().parent
 SOURCES = ROOT / "sources"
 FINAL = ROOT / "final"
 PHONE_OUT = FINAL / "iphone-1242x2688"
+PHONE_UPLOAD_OUT = FINAL / "iphone-1206x2622"
+PHONE_UPLOAD_SIZE = (1206, 2622)
 WATCH_OUT = FINAL / "watch-422x514"
 IPAD_OUT = FINAL / "ipad-2064x2752"
 
@@ -174,10 +178,10 @@ def compose_phones() -> None:
             "01-train-without-the-clock.png",
             (42, 4, 0),
             0,
-            "VO2CUE • EYES-FREE 4×4 COACH",
-            "Train hard.\nNot the clock.",
-            "Large, unmistakable intervals with haptics, tones and optional voice cues.",
-            "runtime-sprint-neutral.png",
+            "APPLE WATCH HEART-RATE GUIDANCE",
+            "Find your range.\nOwn your effort.",
+            "Live heart rate, a clear range slider and spoken guidance for hard efforts and recovery.",
+            "heart-rate-work.png",
         ),
         (
             "02-your-workout-your-way.png",
@@ -205,29 +209,35 @@ def compose_phones() -> None:
         add_phone_screen(canvas, load_phone(source_name), width=872, y=785)
         canvas.convert("RGB").save(PHONE_OUT / filename, quality=96)
 
-    # Cross-device parity: real iPhone and Ultra 3 screens in the same live interval.
+    # Real simulator UI with representative heart-rate data on both devices.
     canvas = phone_canvas((17, 5, 28), -45)
     add_headline(
         canvas,
         "IPHONE + APPLE WATCH",
-        "The same workout.\nRight on your wrist.",
-        "Start, pause, skip and feel every transition—without breaking your rhythm.",
+        "Every interval.\nEvery heartbeat.",
+        "Follow your heart-rate line through hard and recovery cycles, with target guidance on both screens.",
         x=84,
         y=112,
         max_width=1060,
         headline_size=96,
         subhead_size=43,
     )
-    phone = load_phone("runtime-sprint-neutral.png")
-    phone_w = 690
+    # Focus on the complete native graph card, omitting the scrolled status bar
+    # and workout controls. Crop only; no UI text or readings are altered.
+    phone = load_phone("heart-rate-timeline.png").crop((24, 900, 1182, 1910))
+    phone_w = 1074
     phone_h = round(phone_w * phone.height / phone.width)
-    rounded_paste(canvas, phone, (36, 880, phone_w, phone_h), radius=68, border=15, shadow=35)
+    rounded_paste(canvas, phone, (84, 800, phone_w, phone_h), radius=45, border=8, shadow=35)
 
-    watch = load_watch("runtime-sprint.png")
+    watch = load_watch("heart-rate-work.png")
     watch_w = 422
-    watch_h = 514
-    rounded_paste(canvas, watch, (770, 1420, watch_w, watch_h), radius=105, border=14, shadow=42)
-    add_pill(canvas, "SYNCED EXPERIENCE", 768, 2010, ORANGE)
+    watch_h = round(watch_w * watch.height / watch.width)
+    rounded_paste(canvas, watch, (736, 1920, watch_w, watch_h), radius=105, border=14, shadow=42)
+    draw = ImageDraw.Draw(canvas)
+    draw.text((84, 1920), "ON YOUR WRIST", font=font(31, rounded=True), fill=ORANGE)
+    for index, line in enumerate(("Hard efforts.", "Recovery cycles.", "Clear targets.")):
+        draw.text((84, 2010 + index * 65), line, font=font(48, rounded=True), fill=WHITE)
+    add_pill(canvas, "LIVE BPM", 84, 2270, ORANGE)
     canvas.convert("RGB").save(PHONE_OUT / "04-apple-watch-parity.png", quality=96)
 
     # Progress and privacy in a single closing promise.
@@ -374,15 +384,17 @@ def compose_ipads() -> None:
 def compose_watch() -> None:
     WATCH_OUT.mkdir(parents=True, exist_ok=True)
     mapping = {
-        "01-workout-library.png": "workouts.png",
-        "02-live-interval.png": "runtime-sprint.png",
-        "03-workout-controls.png": "controls.png",
+        "01-heart-rate-hard.png": "heart-rate-work.png",
+        "02-heart-rate-recovery.png": "heart-rate-recovery.png",
+        "03-heart-rate-timeline.png": "heart-rate-timeline.png",
     }
+    for retired in ("01-workout-library.png", "02-live-interval.png", "03-workout-controls.png"):
+        (WATCH_OUT / retired).unlink(missing_ok=True)
     for destination, source in mapping.items():
         image = load_watch(source)
         if image.size != (422, 514):
-            image = image.resize((422, 514), Image.Resampling.LANCZOS)
-        image.save(WATCH_OUT / destination)
+            raise ValueError(f"Watch captures must be native 422 × 514: {source} is {image.size}")
+        image.convert("RGB").save(WATCH_OUT / destination)
 
 
 def validate(paths: Iterable[Path], size: tuple[int, int]) -> None:
@@ -392,14 +404,45 @@ def validate(paths: Iterable[Path], size: tuple[int, int]) -> None:
                 raise ValueError(f"{path}: expected {size}, got {image.size}")
 
 
+def export_phone_uploads() -> None:
+    """Export the six slides for the iPhone 6.1/6.3-inch upload slot."""
+    PHONE_UPLOAD_OUT.mkdir(parents=True, exist_ok=True)
+    sources = sorted(PHONE_OUT.glob("*.png"))
+    if len(sources) != 6:
+        raise ValueError(f"Expected six iPhone screenshots, found {len(sources)}")
+    for path in sources:
+        with Image.open(path) as source:
+            image = source.convert("RGB")
+            # Scale the full composition uniformly, extending only the tiny
+            # background margin caused by the different target aspect ratio.
+            scale = min(PHONE_UPLOAD_SIZE[0] / image.width, PHONE_UPLOAD_SIZE[1] / image.height)
+            artwork = image.resize((round(image.width * scale), round(image.height * scale)), Image.Resampling.LANCZOS)
+            canvas = cover(image, PHONE_UPLOAD_SIZE).convert("RGB")
+            canvas.paste(artwork, ((canvas.width - artwork.width) // 2, (canvas.height - artwork.height) // 2))
+            canvas.save(PHONE_UPLOAD_OUT / path.name, optimize=True)
+    validate(PHONE_UPLOAD_OUT.glob("*.png"), PHONE_UPLOAD_SIZE)
+    with ZipFile(ROOT / "vo2cue-iphone-widgets.zip", "w", compression=ZIP_DEFLATED) as archive:
+        for path in sorted(PHONE_UPLOAD_OUT.glob("*.png")):
+            archive.write(path, arcname=f"vo2cue-iphone-widgets/{path.name}")
+
+
 def main() -> None:
-    compose_phones()
-    compose_ipads()
-    compose_watch()
-    export_web_assets()
-    validate(PHONE_OUT.glob("*.png"), (1242, 2688))
-    validate(IPAD_OUT.glob("*.png"), (2064, 2752))
-    validate(WATCH_OUT.glob("*.png"), (422, 514))
+    parser = argparse.ArgumentParser(description="Compose the canonical App Store screenshot sets.")
+    parser.add_argument("--platforms", nargs="+", choices=("iphone", "watch", "ipad", "web"),
+                        default=("iphone", "watch", "ipad", "web"))
+    platforms = parser.parse_args().platforms
+    if "iphone" in platforms:
+        compose_phones()
+        export_phone_uploads()
+        validate(PHONE_OUT.glob("*.png"), (1242, 2688))
+    if "watch" in platforms:
+        compose_watch()
+        validate(WATCH_OUT.glob("*.png"), (422, 514))
+    if "ipad" in platforms:
+        compose_ipads()
+        validate(IPAD_OUT.glob("*.png"), (2064, 2752))
+    if "web" in platforms:
+        export_web_assets()
 
 
 if __name__ == "__main__":

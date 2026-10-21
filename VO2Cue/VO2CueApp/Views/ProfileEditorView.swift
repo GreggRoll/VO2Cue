@@ -15,7 +15,7 @@ struct ProfileEditorView: View {
             repeatCount: 4,
             cooldownSeconds: 0,
             countdownSeconds: 3,
-            hardCueLabel: "Sprint",
+            hardCueLabel: "Hard",
             recoveryCueLabel: "Recover",
             cues: CueSettings()
         )
@@ -37,7 +37,7 @@ struct ProfileEditorView: View {
 
                 Section("Intervals") {
                     DurationStepper(label: "Warm up", seconds: $draft.warmupSeconds, range: 0...(60 * 60), step: 60)
-                    DurationStepper(label: "Hard interval", seconds: $draft.workSeconds, range: 15...(30 * 60), step: 15)
+                    DurationStepper(label: "Work interval", seconds: $draft.workSeconds, range: 15...(30 * 60), step: 15)
                     DurationStepper(label: "Recovery", seconds: $draft.recoverySeconds, range: 15...(30 * 60), step: 15)
                     Stepper("Rounds: \(draft.repeatCount)", value: $draft.repeatCount, in: 1...20)
                     Toggle("Cool down", isOn: $cooldownEnabled)
@@ -62,6 +62,7 @@ struct ProfileEditorView: View {
                     Toggle("Spoken cues", isOn: $draft.cues.voiceEnabled)
                     Toggle("Halfway cue", isOn: $draft.cues.halfwayCueEnabled)
                 }
+                ProfileHeartRateSection(profile: $draft, preferences: model.heartPreferences)
             }
             .navigationTitle("Workout profile")
             .navigationBarTitleDisplayMode(.inline)
@@ -75,6 +76,9 @@ struct ProfileEditorView: View {
                         model.upsert(draft)
                         dismiss()
                     }
+                    .disabled(draft.heartRateGuidance?.enabled == true &&
+                        [draft.heartRateGuidance?.hardOverride, draft.heartRateGuidance?.recoveryOverride]
+                            .compactMap { $0 }.contains { !$0.isValid })
                 }
             }
             .onChange(of: cooldownEnabled) { _, enabled in

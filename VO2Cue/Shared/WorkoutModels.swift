@@ -44,7 +44,7 @@ enum WorkoutActivity: String, CaseIterable, Codable, Identifiable, Sendable {
 struct CueSettings: Codable, Equatable, Sendable {
     var hapticsEnabled: Bool = true
     var tonesEnabled: Bool = true
-    var voiceEnabled: Bool = false
+    var voiceEnabled: Bool = true
     var halfwayCueEnabled: Bool = true
 }
 
@@ -61,6 +61,7 @@ struct WorkoutProfile: Codable, Equatable, Hashable, Identifiable, Sendable {
     var hardCueLabel: String
     var recoveryCueLabel: String
     var cues: CueSettings
+    var heartRateGuidance: HeartRateGuidance?
 
     init(
         id: UUID = UUID(),
@@ -74,7 +75,8 @@ struct WorkoutProfile: Codable, Equatable, Hashable, Identifiable, Sendable {
         countdownSeconds: Int,
         hardCueLabel: String,
         recoveryCueLabel: String,
-        cues: CueSettings
+        cues: CueSettings,
+        heartRateGuidance: HeartRateGuidance? = nil
     ) {
         self.id = id
         self.name = name
@@ -88,6 +90,7 @@ struct WorkoutProfile: Codable, Equatable, Hashable, Identifiable, Sendable {
         self.hardCueLabel = hardCueLabel
         self.recoveryCueLabel = recoveryCueLabel
         self.cues = cues
+        self.heartRateGuidance = heartRateGuidance
     }
 
     static let norwegian4x4 = WorkoutProfile(
@@ -98,7 +101,7 @@ struct WorkoutProfile: Codable, Equatable, Hashable, Identifiable, Sendable {
         repeatCount: 4,
         cooldownSeconds: 0,
         countdownSeconds: 3,
-        hardCueLabel: "Sprint",
+        hardCueLabel: "Hard",
         recoveryCueLabel: "Recover",
         cues: CueSettings()
     )
@@ -145,6 +148,7 @@ extension WorkoutProfile {
             && lhs.hardCueLabel == rhs.hardCueLabel
             && lhs.recoveryCueLabel == rhs.recoveryCueLabel
             && lhs.cues == rhs.cues
+            && lhs.heartRateGuidance == rhs.heartRateGuidance
     }
 
     func hash(into hasher: inout Hasher) {
@@ -216,6 +220,11 @@ struct WorkoutRecord: Codable, Equatable, Identifiable, Sendable {
     let endedAt: Date
     let activeSeconds: Int
     let completed: Bool
+    // Absent on legacy records, whose duration may include skipped intervals.
+    let actualActiveSeconds: Int?
+    let phaseResults: [WorkoutPhaseResult]?
+    let heartRateTrace: WorkoutHeartRateTrace?
+    let heartRateGuidance: HeartRateGuidance?
 
     init(
         id: UUID = UUID(),
@@ -225,7 +234,11 @@ struct WorkoutRecord: Codable, Equatable, Identifiable, Sendable {
         startedAt: Date,
         endedAt: Date,
         activeSeconds: Int,
-        completed: Bool
+        completed: Bool,
+        actualActiveSeconds: Int? = nil,
+        phaseResults: [WorkoutPhaseResult]? = nil,
+        heartRateTrace: WorkoutHeartRateTrace? = nil,
+        heartRateGuidance: HeartRateGuidance? = nil
     ) {
         self.id = id
         self.profileID = profileID
@@ -235,7 +248,25 @@ struct WorkoutRecord: Codable, Equatable, Identifiable, Sendable {
         self.endedAt = endedAt
         self.activeSeconds = activeSeconds
         self.completed = completed
+        self.actualActiveSeconds = actualActiveSeconds
+        self.phaseResults = phaseResults
+        self.heartRateTrace = heartRateTrace
+        self.heartRateGuidance = heartRateGuidance
     }
+
+    var displayedSeconds: Int { actualActiveSeconds ?? activeSeconds }
+    var durationLabel: String { actualActiveSeconds == nil ? "Recorded time" : "Active time" }
+    var skippedPhaseCount: Int { phaseResults?.count(where: \.skipped) ?? 0 }
+}
+
+struct WorkoutPhaseResult: Codable, Equatable, Identifiable, Sendable {
+    let id: UUID
+    let kind: WorkoutPhaseKind
+    let round: Int?
+    let label: String
+    let plannedSeconds: Int
+    let activeSeconds: TimeInterval
+    let skipped: Bool
 }
 
 extension Duration {

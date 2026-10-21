@@ -1,6 +1,6 @@
 import Foundation
 
-struct WorkoutSnapshot: Equatable, Sendable {
+struct WorkoutSnapshot: Codable, Equatable, Sendable {
     let phaseIndex: Int
     let phase: WorkoutPhase
     let elapsedSeconds: TimeInterval
@@ -10,7 +10,7 @@ struct WorkoutSnapshot: Equatable, Sendable {
     let progress: Double
 }
 
-struct WorkoutTimeline: Equatable, Sendable {
+struct WorkoutTimeline: Codable, Equatable, Sendable {
     let phases: [WorkoutPhase]
     let totalDurationSeconds: Int
 
