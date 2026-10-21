@@ -20,7 +20,7 @@ struct WatchRuntimeView: View {
                                 VStack(spacing: 8) {
                                     Button("Timer", systemImage: "timer") { page = 0 }
                                         .font(.caption2).buttonStyle(.plain)
-                                    RuntimeIntervalGraph(runtime: runtime)
+                                    RuntimeIntervalGraph(runtime: runtime, showsTitle: false)
                                 }.padding(.horizontal, 4)
                             }.tag(2)
                         }
@@ -30,7 +30,7 @@ struct WatchRuntimeView: View {
             }
             .navigationTitle(page == 0 && (runtime.status == .running || runtime.status == .paused)
                 ? (model.heartRate.isPreviewData ? "\(runtime.snapshot.phase.displayTitle) · Debug" : runtime.snapshot.phase.displayTitle)
-                : "Workout")
+                : page == 2 ? "Timeline" : "Workout")
             .navigationBarTitleDisplayMode(.inline)
         }
         .confirmationDialog("End workout?", isPresented: $confirmEnd) {

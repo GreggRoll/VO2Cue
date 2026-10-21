@@ -258,20 +258,25 @@ final class WatchAppModel {
         guard let index = arguments.firstIndex(of: "-heartSyncFixture"), arguments.indices.contains(index + 1) else { return }
         let fixture = arguments[index + 1]
         let now = Date()
-        var profile = WorkoutProfile.heartSyncCheck
+        let isStoreCapture = arguments.contains("-appStoreScreenshots")
+        var profile = isStoreCapture ? WorkoutProfile.norwegian4x4 : WorkoutProfile.heartSyncCheck
         profile.heartRateGuidance = .init(maximumBPM: 180)
         let preview = WorkoutRuntime(profile: profile)
-        let elapsed = fixture.hasPrefix("recovery") ? 200.0 : 135.0
+        let elapsed = isStoreCapture ? (fixture.hasPrefix("recovery") ? 1_290.0 : 1_122.0)
+            : (fixture.hasPrefix("recovery") ? 200.0 : 135.0)
         let start = now.addingTimeInterval(-elapsed)
         preview.start(at: start)
         for second in stride(from: 0.0, through: elapsed - 2, by: 3) {
             let date = start.addingTimeInterval(second)
-            let bpm = second < 30 ? 110 : second < 150 ? 155 + 10 * sin(second / 25) : 120
+            preview.update(at: date, emitCues: false)
+            let kind = preview.snapshot.phase.kind
+            let bpm = kind == .work ? 155 + 12 * sin(second / 40)
+                : kind == .recovery ? 120 + 12 * cos(second / 25) : 105 + 10 * sin(second / 35)
             preview.recordHeartRate(.init(bpm: bpm, date: date), at: date)
         }
         preview.update(at: now)
         self.runtime = preview
-        heartRate.isPreviewData = true
+        heartRate.isPreviewData = !isStoreCapture
         heartbeat = Task { [weak self] in
             while !Task.isCancelled {
                 guard let self else { return }

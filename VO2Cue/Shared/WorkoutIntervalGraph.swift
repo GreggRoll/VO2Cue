@@ -35,11 +35,12 @@ struct WorkoutIntervalGraph: View, Equatable {
     let trace: WorkoutHeartRateTrace
     let elapsed: Double
     var isLive = true
+    var showsTitle = true
     @State private var selectedSeconds: Double?
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.phases == rhs.phases && lhs.trace == rhs.trace
-            && lhs.elapsed == rhs.elapsed && lhs.isLive == rhs.isLive
+            && lhs.elapsed == rhs.elapsed && lhs.isLive == rhs.isLive && lhs.showsTitle == rhs.showsTitle
     }
 
     private var total: Double { max(1, phases.last?.end ?? 1) }
@@ -56,7 +57,7 @@ struct WorkoutIntervalGraph: View, Equatable {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Workout timeline").font(.headline)
+            if showsTitle { Text("Workout timeline").font(.headline) }
             chart
                 #if os(watchOS)
                 .frame(height: 110)
@@ -150,12 +151,13 @@ struct WorkoutIntervalGraph: View, Equatable {
 
 struct RuntimeIntervalGraph: View {
     let runtime: WorkoutRuntime
+    var showsTitle = true
     var body: some View {
         if !runtime.heartRateTrace.points.isEmpty {
             WorkoutIntervalGraph(phases: WorkoutGraphPhase.make(results: runtime.phaseResults,
                 guidance: runtime.profile.heartRateGuidance), trace: runtime.heartRateTrace,
                 elapsed: Double(runtime.elapsedSeconds),
-                isLive: runtime.status == .running || runtime.status == .paused)
+                isLive: runtime.status == .running || runtime.status == .paused, showsTitle: showsTitle)
                 .equatable()
         }
     }

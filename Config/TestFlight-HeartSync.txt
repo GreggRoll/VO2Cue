@@ -1,22 +1,17 @@
-HEART SYNC PREVIEW — version 1.2, build 9
+HEART SYNC PREVIEW — version 1.2, build 10
 
-Install build 9 on BOTH iPhone and Apple Watch.
+Install build 10 on BOTH iPhone and Apple Watch.
 
-NEW IN BUILD 9
-• Spoken cues are enabled by default for newly created workouts, templates, the initial Norwegian 4×4 profile and Heart Sync Check on iPhone and Apple Watch.
-• Existing saved workout settings are preserved, including Spoken cues switched off. To hear cues in an existing workout, edit its profile and enable Spoken cues.
-
-INCLUDED FROM BUILD 8
-• Recovery below the lower target now says Heart rate up. Heart rate good is reserved for readings within the target range, including its boundaries, in both hard and recovery intervals.
-• Range status, meter and halfway cues now agree with the current rounded BPM displayed on screen, instead of an older trend. Stale and paused samples still suppress heart-rate cues.
-• Removed Keep recovery easy, Build gradually toward your target, and the ten-second trend explanation. Ongoing deviation cues also use Heart rate up/down.
-• Workout timelines appear only after Watch heart-rate readings have actually been recorded. Phone-only timers and records without heart-rate data have no timeline. Previously recorded Watch graphs remain visible during pauses and temporary sensor gaps.
-• The Watch phase name uses the compact top title area, freeing space for the bottom target text. Tap the heart-rate readout to see its graph once readings have been collected; tap Timer to return.
+NEW IN BUILD 10
+• Onboarding introduces Apple Watch heart-rate tracking with hard and recovery range sliders, explains the workout graph and spoken heart-rate cues, and leads into maximum-HR setup.
+• The Watch timeline uses a compact navigation title so the graph and dashed-target caption fit together.
+• New workouts use spoken cues by default. Existing saved cue choices remain unchanged; enable Spoken cues in an existing profile if you want to hear guidance.
 
 WHAT TO TEST
-1. During recovery, compare below/in/above target status and meter on both devices. At halfway, below must say up, within must say good, and above must say down. Enable halfway, heart-rate and spoken cues in the profile.
-2. Confirm the removed coaching/trend messages never appear.
-3. Start a phone-only workout: no Workout timeline should appear while running, on completion or in its saved detail. Start a Watch workout without a reading: the graph should appear only after the first recorded reading.
-4. Check Sprint/Recover, countdown, BPM, status, meter and bottom target on your Watch screen. Pause/resume, skip, disconnect/reconnect and create a sensor gap. Missing readings must not announce good; collected graph history must remain available.
+1. Open Settings → Review introduction, or install fresh. Check the example sliders, Watch requirement, graph explanation and spoken-cue guidance. Enter a known maximum or use the age estimate, 220 − (0.7 × age), and verify your hard and recovery targets.
+2. Start a Watch workout. Compare the current rounded BPM, range marker and target status on both devices. Targets should change between hard and recovery intervals. Check the bottom target text and tap the heart-rate readout to view the timeline; the full caption should fit on the larger Watch. Tap Timer to return.
+3. At halfway in either phase, below target must say Heart rate up, within target must say Heart rate good, and above target must say Heart rate down. Enable halfway, heart-rate and spoken cues in the profile. Missing or paused readings must not announce good.
+4. Phone-only workouts and records without Watch heart-rate data must have no timeline. A Watch workout's graph appears after its first recorded reading. Check the BPM line and dashed target guides through hard and recovery cycles.
+5. Pause/resume, skip, disconnect/reconnect and create a sensor gap. Collected graph history must remain available. Confirm Keep recovery easy, Build gradually toward your target, and the ten-second trend explanation never appear.
 
-Maximum-HR setup and the age estimate 220 − (0.7 × age) are unchanged. Watch graphs remain local to the paired devices and bounded to 480 points. No simulated HR source is included in TestFlight. Live Activities show the interval timer; open the app for HR and the graph.
+Graphs remain local to the paired devices and bounded to 480 points. No simulated heart-rate or screenshot fixture is included in TestFlight. Live Activities show the interval timer; open the app for heart rate and the graph.

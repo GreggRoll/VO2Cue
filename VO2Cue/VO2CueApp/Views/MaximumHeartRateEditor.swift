@@ -63,7 +63,7 @@ struct HeartRateOnboardingView: View {
                     if isIntroduction { Text("5 / 5").font(.caption).foregroundStyle(.secondary) }
                     Text("Train in your range").font(.largeTitle.bold())
                         .accessibilityIdentifier("heartRateOnboardingTitle")
-                    Text("Set your maximum heart rate for Apple Watch guidance. Your target changes between hard and recovery intervals.")
+                    Text("Personalize the range slider and spoken heart-rate guidance on iPhone and Apple Watch. Your target changes between hard and recovery intervals.")
                 }
                 MaximumHeartRateEditor(maximum: $maximum, source: $source)
                 Section {

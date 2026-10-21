@@ -14,9 +14,14 @@ final class VO2CueUITests: XCTestCase {
         app.terminate()
         app.launchArguments = ["-healthSavingEnabled", "NO", "-resetOnboarding", "-hasAlreadyReviewed", "YES", "-purchaseFixture", "locked"]
         app.launch()
-        for title in ["More life.\nMore living.", "Feel fitter.\nLook the part.", "You move.\nWe cue.", "Your workout.\nYour way."] {
+        for title in ["More life.\nMore living.", "Find your range.\nOwn your effort.", "You move.\nWe cue.", "Your workout.\nYour way."] {
             XCTAssertTrue(app.staticTexts["onboardingTitle"].waitForExistence(timeout: 3))
             XCTAssertEqual(app.staticTexts["onboardingTitle"].label, title)
+            if title.hasPrefix("Find your range") {
+                XCTAssertTrue(app.staticTexts["Target 153–171 BPM"].exists)
+                XCTAssertTrue(app.staticTexts["Target 108–126 BPM"].exists)
+                XCTAssertEqual(app.otherElements.matching(identifier: "heartRateRangeMeter").count, 2)
+            }
             captureScreen(title.replacingOccurrences(of: "\n", with: " "))
             app.buttons["onboardingContinue"].tap()
         }
@@ -56,6 +61,27 @@ final class VO2CueUITests: XCTestCase {
         attachment.name = name
         attachment.lifetime = .keepAlways
         add(attachment)
+    }
+
+    func testAppStoreHeartRateScreenshots() {
+        for fixture in ["work", "recovery"] {
+            app.terminate()
+            app.launchArguments = ["-hasCompletedOnboarding", "YES", "-hasAlreadyReviewed", "YES",
+                "-purchaseFixture", "paid", "-heartSyncFixture", fixture, "-appStoreScreenshots",
+                "-healthSavingEnabled", "NO"]
+            app.launch()
+            XCTAssertTrue(app.staticTexts["heartRateStatus"].waitForExistence(timeout: 5))
+            XCTAssertEqual(app.staticTexts["heartRateStatus"].label, "In target")
+            XCTAssertFalse(app.staticTexts["Simulated preview · Debug only"].exists)
+            captureScreen("Store heart-rate \(fixture)")
+            if fixture == "work" {
+                let graph = app.otherElements.matching(identifier: "workoutHeartRateGraph").firstMatch
+                scrollTo(graph)
+                app.swipeUp()
+                XCTAssertTrue(app.staticTexts["Dashed lines: target range · Tap the graph to inspect BPM."].isHittable)
+                captureScreen("Store heart-rate timeline")
+            }
+        }
     }
 
     func testHeartSyncPreviewShowsPhaseTargetsAndClearsStaleOrPausedReadings() {

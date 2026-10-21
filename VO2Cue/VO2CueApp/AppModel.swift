@@ -424,7 +424,9 @@ final class AppModel {
         let feed = workoutMirror.heartRate
         feed.presentation = reading
         feed.isConnected = fixture != "disconnected"
-        feed.isPreviewData = true
+        // Store captures use representative demo data with the normal product UI.
+        // This launch path is compiled out of distribution builds.
+        feed.isPreviewData = !arguments.contains("-appStoreScreenshots")
         feed.receivedAt = now
         feed.sentAt = now.addingTimeInterval(-0.05)
         feed.connectionMessage = "Simulated preview · Debug only"
