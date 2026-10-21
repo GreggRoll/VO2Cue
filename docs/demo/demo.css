@@ -41,3 +41,29 @@ footer nav{flex-wrap:wrap;gap:12px}
 footer nav a{display:inline-flex;align-items:center;min-height:44px;padding:4px}
 @media(max-width:900px){.product-facts{grid-template-columns:repeat(2,minmax(0,1fr))}.header{padding-top:20px;padding-bottom:20px}.header nav{gap:16px}.faq-list{column-gap:32px}}
 @media(max-width:650px){.hero{grid-template-columns:minmax(0,1fr)}.hero h1{font-size:clamp(44px,10vw,64px);letter-spacing:-2px}.hero-visual .art-note{text-align:center}.hero-art{min-height:520px}.faq-list{grid-template-columns:minmax(0,1fr)}.product-facts{gap:12px;margin-bottom:48px}.product-facts>div{padding:16px}.gallery figcaption span{font-size:12px;letter-spacing:.5px}.eyebrow{font-size:12px}.header nav{gap:10px}.contribute-button{white-space:normal}}
+
+/* Heart Sync uses native simulator captures with example readings. */
+.preview-note{font-size:13px;line-height:1.6;color:var(--muted);max-width:440px;padding-left:12px;border-left:2px solid #778f33}
+.heart-rate{background:#162323;color:var(--paper)}
+.heart-rate .section-heading>p,.heart-rate figcaption p,.heart-rate .caption{color:#c3cec6}
+.heart-rate .eyebrow,.heart-rate figcaption span{color:var(--accent)}
+.heart-showcase{display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:start}
+.heart-phases{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.heart-showcase figure{min-width:0}
+.heart-watch-art{display:flex;justify-content:center;align-items:center;background:#2d3933;border:1px solid #46534b;border-radius:24px;padding:24px 12px;min-height:280px}
+.heart-watch-art img{width:190px;border:6px solid #444e48;border-radius:32px;box-shadow:0 14px 24px #0003}
+.recovery-art{background:#253b38}
+.heart-graph-art{background:#2d3933;border:1px solid #46534b;border-radius:24px;padding:20px}
+.heart-graph-art picture{display:block}.heart-graph-art img{border-radius:20px;width:100%}
+.heart-rate figcaption{padding-top:22px}.heart-rate figcaption h3{font-size:21px}
+.heart-benefits{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px;margin:48px 0 32px;padding-top:32px;border-top:1px solid #46534b}
+.heart-benefits dt{font-size:18px;font-weight:700;line-height:1.4}.heart-benefits dd{margin:12px 0 0;font-size:14px;color:#c3cec6}
+.heart-preview{font-size:14px;line-height:1.7;padding:20px 24px;border:1px solid #556247;border-radius:16px;color:#d5dfd2}
+.heart-preview strong{display:block;color:var(--accent);margin-bottom:6px}.heart-preview a{text-decoration:underline;text-underline-offset:3px}
+.heart-rate a:focus-visible{outline-color:var(--accent)}
+@media(max-width:900px){.heart-showcase{grid-template-columns:minmax(0,1fr);gap:36px}.heart-watch-art{min-height:290px}.heart-timeline{max-width:650px;width:100%;margin:auto}.heart-benefits{gap:24px}.header nav{gap:14px}}
+@media(max-width:650px){.heart-phases{gap:16px}.heart-watch-art{padding:20px 8px;min-height:0}.heart-watch-art img{width:160px;border-radius:28px}.heart-graph-art{padding:18px}.heart-benefits{grid-template-columns:minmax(0,1fr);gap:24px;margin-top:32px}.heart-rate figcaption h3{font-size:19px}.heart-rate figcaption span{font-size:11px;letter-spacing:.7px}.heart-preview{padding:18px}.header nav>a[href="#widgets"]{display:none}.hero-facts{gap:24px}}
+@media(max-width:390px){.heart-phases{grid-template-columns:minmax(0,1fr);gap:32px}.heart-watch-art img{width:200px}}
+.contribute-button{max-width:100%;white-space:normal;flex-shrink:1}
+h1,h2,h3{overflow-wrap:anywhere}
+@media(max-width:380px){.button>.arrow{display:none}}
